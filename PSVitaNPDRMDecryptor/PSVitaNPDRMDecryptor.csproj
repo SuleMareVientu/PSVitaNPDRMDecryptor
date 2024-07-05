@@ -118,6 +118,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PSV.ico" />
+    <Content Include="Resources\Arrow-x50.png" />
+    <Content Include="Resources\Arrow.png" />
+    <Content Include="Resources\Cross-x50.png" />
+    <Content Include="Resources\Cross.png" />
+    <Content Include="Resources\Plus-x50.png" />
+    <Content Include="Resources\Plus.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

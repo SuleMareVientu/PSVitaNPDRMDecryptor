@@ -5,6 +5,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WK.Libraries.BetterFolderBrowserNS;
+using static System.Windows.Forms.AxHost;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace PSVitaNPDRMDecryptor {
 	public partial class OptionsForm : Form {
@@ -17,6 +19,22 @@ namespace PSVitaNPDRMDecryptor {
 			}
 		}
 
+        public void SetFormState(bool state)
+        {
+            Program.form.btnAdd.Enabled = state;
+            Program.form.btnRemove.Enabled = state;
+            Program.form.btnBrowse.Enabled = state;
+            Program.form.btnOkay.Enabled = state;
+            Program.form.btnHelp.Enabled = state;
+
+            Program.form.listBox1.Enabled = state;
+            Program.form.txtOutputDir.Enabled = state;
+            Program.form.chkCompressELFs.Enabled = state;
+            Program.form.chkAddSuffix.Enabled = state;
+            Program.form.chkCompressELFs.Enabled = state;
+            return;
+        }
+
 		private HashSet<Task> runningTasks;
 
 		public IEnumerable<Task> RunningTasks {
@@ -28,6 +46,9 @@ namespace PSVitaNPDRMDecryptor {
         public OptionsForm()
         {
             InitializeComponent();
+            toolTipAdd.SetToolTip(this.btnAdd, "Add Folders");
+            toolTipRemove.SetToolTip(this.btnRemove, "Remove highlighted folders");
+            toolTipStart.SetToolTip(this.btnOkay, "Run");
             runningTasks = new HashSet<Task>();
         }
 
@@ -47,6 +68,7 @@ namespace PSVitaNPDRMDecryptor {
 
 		private void btnAdd_Click(object sender, EventArgs e) {
 			using (BetterFolderBrowser d = new BetterFolderBrowser()) {
+				SetFormState(false);
                 d.Multiselect = true;
                 //d.RootFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
                 if (d.ShowDialog() == DialogResult.OK)
@@ -58,6 +80,7 @@ namespace PSVitaNPDRMDecryptor {
                     }
                 }
             }
+            SetFormState(true);
         }
 
 		private void btnRemove_Click(object sender, EventArgs e) {
@@ -92,12 +115,14 @@ namespace PSVitaNPDRMDecryptor {
 		private void btnBrowse_Click(object sender, EventArgs e) {
             using (BetterFolderBrowser d = new BetterFolderBrowser())
             {
+                SetFormState(false);
                 //d.RootFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
                 if (d.ShowDialog() == DialogResult.OK) {
                     txtOutputDir.Text = d.SelectedPath;
                 }
             }
-		}
+            SetFormState(true);
+        }
 
 		private void btnHelp_Click(object sender, EventArgs e) {
             MessageBox.Show("This tool works on encrypted PSVita games extracted with \"pkg2zip.exe\" or similar, " +
@@ -147,6 +172,11 @@ namespace PSVitaNPDRMDecryptor {
         }
 
         private void OptionsForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void toolTip1_Popup(object sender, PopupEventArgs e)
         {
 
         }
