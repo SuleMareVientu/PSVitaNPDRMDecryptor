@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -46,6 +47,7 @@ namespace PSVitaNPDRMDecryptor {
                 string outputDir = o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName;
                 if (o.AddSuffix) outputDir += "_dec";   //Check if suffix is needed
                 string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
+                string paramsfo = outputDir + "\\sce_sys\\param.sfo";
                 string clearsign = outputDir + "\\sce_sys\\clearsign";
                 string keystone = outputDir + "\\sce_sys\\keystone";
 
@@ -65,20 +67,8 @@ namespace PSVitaNPDRMDecryptor {
                 window.SetDecodingText(dirName);
                 window.Update(++i / maxProgress);
 
-                // Read klicensee from work.bin
-                string klic = GetKLicensee(workbin);
-
-                // Decrypt NPDRM contents
-                ProcessStartInfo psi = new ProcessStartInfo
-                {
-                    FileName = "bin\\psvpfsparser-win64.exe",
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    Arguments = "-k " + klic + " -i \"" + inputDir + "\" -o \"" + outputDir + "\""
-                };
-                Process p = Process.Start(psi);
-                p.WaitForExit();
-
+                DecryptPFS(inputDir, outputDir, GetKLicensee(workbin));
+                
                 // Check if ELFs should be compressed
                 string compressCommand = "";
                 if (o.CompressELFs) compressCommand = " --compress";
@@ -89,37 +79,19 @@ namespace PSVitaNPDRMDecryptor {
                     if (!IsSELF(SELF.TrimEnd(Path.DirectorySeparatorChar)))
                         continue;
 
-                    // Encrypted NPDRM SELF -> ELF
                     string tmpELF = SELF + ".elf";
-                    psi = new ProcessStartInfo
-                    {
-                        FileName = "bin\\self2elf.exe",
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        Arguments = "-i \"" + SELF + "\" -o \"" + tmpELF + "\" -k \"" + workbin + "\""
-                    };
-                    p = Process.Start(psi);
-                    p.WaitForExit();
+                    UnSELF(SELF, tmpELF, workbin);
 
                     ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
+                    File.Delete(SELF);  //Delete old eboot
 
-                    //Delete old eboot
-                    File.Delete(SELF);
-
-                    // ELF -> fSELF
-                    psi = new ProcessStartInfo
-                    {
-                        FileName = "bin\\vdsuite-pubprx.exe",
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        Arguments = "\"" + tmpELF + "\" \"" + SELF + "\"" + compressCommand
-                    };
-                    p = Process.Start(psi);
-                    p.WaitForExit();
+                    MakeFSELF(tmpELF, SELF, compressCommand);
+                    File.Delete(tmpELF);
 
                     WriteSELFHeader(SELF, PIH, NPDRM, bootParams);
-                    File.Delete(tmpELF);
                 }
+
+                PatchParamSfo(paramsfo);
 
                 File.Delete(clearsign);
                 File.Delete(keystone);
@@ -130,6 +102,72 @@ namespace PSVitaNPDRMDecryptor {
 				window.Close();
 			}));
 		}
+
+        public const string psvpfsparser = "bin\\psvpfsparser-win64.exe";
+        public static void DecryptPFS(string inputDir, string outputDir, string klic)
+        {
+            if (!File.Exists(psvpfsparser))
+            {
+                MessageBox.Show("\"psvpfsparser-win64.exe\" was not found or is inaccessible");
+                Application.Exit();
+                return;
+            }
+
+            // Decrypt NPDRM contents
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = psvpfsparser,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                Arguments = "-k " + klic + " -i \"" + inputDir + "\" -o \"" + outputDir + "\""
+            };
+            Process p = Process.Start(psi);
+            p.WaitForExit();
+        }
+
+        public const string self2elf = "bin\\self2elf.exe";
+        public static void UnSELF(string SELF, string ELF, string workbin)
+        {
+            if (!File.Exists(self2elf))
+            {
+                MessageBox.Show("\"self2elf.exe\" was not found or is inaccessible");
+                Application.Exit();
+                return;
+            }
+
+            // Encrypted NPDRM SELF -> ELF
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = self2elf,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                Arguments = "-i \"" + SELF + "\" -o \"" + ELF + "\" -k \"" + workbin + "\""
+            };
+            Process p = Process.Start(psi);
+            p.WaitForExit();
+        }
+
+        public const string vdsuitepubprx = "bin\\vdsuite-pubprx.exe";
+        public static void MakeFSELF(string ELF, string SELF, string commands)
+        {
+            if (!File.Exists(vdsuitepubprx))
+            {
+                MessageBox.Show("\"vdsuite-pubprx.exe\" was not found or is inaccessible");
+                Application.Exit();
+                return;
+            }
+
+            // ELF -> fSELF
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = vdsuitepubprx,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                Arguments = "\"" + ELF + "\" \"" + SELF + "\"" + commands
+            };
+            Process p = Process.Start(psi);
+            p.WaitForExit();
+        }
 
         public static bool IsSELF(string SELF)
         {
@@ -152,7 +190,7 @@ namespace PSVitaNPDRMDecryptor {
         public static string GetKLicensee(string workbin)
         {
             string klic = "";
-            using (FileStream fs = new FileStream(workbin, FileMode.Open))
+            using (FileStream fs = new FileStream(workbin, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 byte[] arr = new byte[0x10];
                 fs.Seek(0x50, SeekOrigin.Begin);
@@ -174,7 +212,7 @@ namespace PSVitaNPDRMDecryptor {
 
             // Read SELF
             byte[] SELFarr = File.ReadAllBytes(SELF);
-            using (FileStream fs = new FileStream(SELF, FileMode.Open))
+            using (FileStream fs = new FileStream(SELF, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 // Read Program Identification Header
                 fs.Seek(0x80, SeekOrigin.Begin);
@@ -197,7 +235,7 @@ namespace PSVitaNPDRMDecryptor {
         {
             // Read SELF
             byte[] SELFarr = File.ReadAllBytes(SELF);
-            using (FileStream fs = new FileStream(SELF, FileMode.Open))
+            using (FileStream fs = new FileStream(SELF, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
             {
                 // Read Program Identification Header
                 fs.Seek(0x80, SeekOrigin.Begin);
@@ -214,6 +252,26 @@ namespace PSVitaNPDRMDecryptor {
                 fs.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
                 fs.Write(bootParams, 0, 0x110);
 
+                fs.Close();
+            }
+            return;
+        }
+
+        public static void PatchParamSfo(string paramsfo)
+        {
+            // Clear "Application is upgradable" bit in param.sfo "ATTRIBUTE"
+            using (FileStream fs = new FileStream(paramsfo, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
+            {
+                byte[] KeyTableStartOffset = new byte[0x04];
+                byte[] ATTRIBUTE = new byte[0x04];
+                fs.Seek(0x0C, SeekOrigin.Begin);
+                fs.Read(KeyTableStartOffset, 0, 0x04); KeyTableStartOffset.Reverse();
+                int AttributeOffsetInt = BitConverter.ToInt32(KeyTableStartOffset, 0) + 0x08;
+                fs.Seek(AttributeOffsetInt, SeekOrigin.Begin);
+                fs.Read(ATTRIBUTE, 0, 0x04); ATTRIBUTE.Reverse();
+                ATTRIBUTE = BitConverter.GetBytes(BitConverter.ToInt32(ATTRIBUTE, 0) & ~1024); ATTRIBUTE.Reverse();
+                fs.Seek(AttributeOffsetInt, SeekOrigin.Begin);
+                fs.Write(ATTRIBUTE, 0, 0x04);
                 fs.Close();
             }
             return;
