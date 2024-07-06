@@ -44,7 +44,7 @@ namespace PSVitaNPDRMDecryptor {
                 string inputDirTrimmed = inputDir.TrimEnd(Path.DirectorySeparatorChar);
                 string dirName = Path.GetFileName(inputDirTrimmed);
                 string outputDir = o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName;
-                if (o.AddSuffix) outputDir += "_dec";   //Check if suffixs are needed
+                if (o.AddSuffix) outputDir += "_dec";   //Check if suffix is needed
                 string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
                 string clearsign = outputDir + "\\sce_sys\\clearsign";
                 string keystone = outputDir + "\\sce_sys\\keystone";
@@ -66,15 +66,7 @@ namespace PSVitaNPDRMDecryptor {
                 window.Update(++i / maxProgress);
 
                 // Read klicensee from work.bin
-                string klic = "";
-                using (FileStream fs = new FileStream(workbin, FileMode.Open))
-				{
-                    byte[] arr = new byte[16];
-                    fs.Seek(80, SeekOrigin.Begin);
-                    fs.Read(arr, 0, 16);
-					fs.Close();
-                    klic = ByteArrayToString(arr);
-                }
+                string klic = GetKLicensee(workbin);
 
                 // Decrypt NPDRM contents
                 ProcessStartInfo psi = new ProcessStartInfo
@@ -94,23 +86,11 @@ namespace PSVitaNPDRMDecryptor {
                 string[] files = Directory.GetFiles(outputDir, "*.*", SearchOption.AllDirectories);
                 foreach (string SELF in files)
                 {
-                    if (Path.GetFileName(SELF) == "right.suprx")
+                    if (!IsSELF(SELF.TrimEnd(Path.DirectorySeparatorChar)))
                         continue;
 
-                    byte[] header = new byte[4];
-                    byte[] magic = new byte[4] { 0x53, 0x43, 0x45, 0x00 };
-                    using (FileStream fs = new FileStream(SELF, FileMode.Open))
-                    {
-                        fs.Seek(0, SeekOrigin.Begin);
-                        fs.Read(header, 0, 4);
-                        fs.Close();
-                        if (!header.SequenceEqual(magic))
-                            continue;
-                    }
-
-                    string tmpELF = SELF + ".elf";
-
                     // Encrypted NPDRM SELF -> ELF
+                    string tmpELF = SELF + ".elf";
                     psi = new ProcessStartInfo
                     {
                         FileName = "bin\\self2elf.exe",
@@ -121,26 +101,7 @@ namespace PSVitaNPDRMDecryptor {
                     p = Process.Start(psi);
                     p.WaitForExit();
 
-                    // Read Program Identification Header
-                    byte[] pih = new byte[0x20];
-                    using (FileStream fs = new FileStream(SELF, FileMode.Open))
-                    {
-                        fs.Seek(0x80, SeekOrigin.Begin);
-                        fs.Read(pih, 0, 0x20);
-                        fs.Close();
-                    }
-
-                    // Read Boot Params
-                    byte[] pattern = new byte[0x08] { 0x06, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x00 };
-                    byte[] tmpSELFArr = File.ReadAllBytes(SELF);
-                    int offset = PatternAt(tmpSELFArr, pattern).FirstOrDefault();
-                    byte[] bootParams = new byte[0x110];
-                    using (FileStream fs = new FileStream(SELF, FileMode.Open))
-                    {
-                        fs.Seek(offset, SeekOrigin.Begin);
-                        fs.Read(bootParams, 0, 0x110);
-                        fs.Close();
-                    }
+                    ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
 
                     //Delete old eboot
                     File.Delete(SELF);
@@ -156,24 +117,7 @@ namespace PSVitaNPDRMDecryptor {
                     p = Process.Start(psi);
                     p.WaitForExit();
 
-                    // Write back original SELF Program Identification Header
-                    using (FileStream fs = new FileStream(SELF, FileMode.Open))
-                    {
-                        fs.Seek(0x80, SeekOrigin.Begin);
-                        fs.Write(pih, 0, 0x20);
-                        fs.Close();
-                    }
-
-                    // Write back original ELF Boot Params
-                    tmpSELFArr = File.ReadAllBytes(SELF);
-                    offset = PatternAt(tmpSELFArr, pattern).FirstOrDefault();
-                    using (FileStream fs = new FileStream(SELF, FileMode.Open))
-                    {
-                        fs.Seek(offset, SeekOrigin.Begin);
-                        fs.Write(bootParams, 0, 0x110);
-                        fs.Close();
-                    }
-
+                    WriteSELFHeader(SELF, PIH, NPDRM, bootParams);
                     File.Delete(tmpELF);
                 }
 
@@ -186,6 +130,94 @@ namespace PSVitaNPDRMDecryptor {
 				window.Close();
 			}));
 		}
+
+        public static bool IsSELF(string SELF)
+        {
+            if (Path.GetFileName(SELF) == "right.suprx")
+                return false;
+
+            byte[] header = new byte[4];
+            byte[] magic = new byte[4] { 0x53, 0x43, 0x45, 0x00 };
+            using (FileStream fs = new FileStream(SELF, FileMode.Open))
+            {
+                fs.Seek(0, SeekOrigin.Begin);
+                fs.Read(header, 0, 4);
+                fs.Close();
+                if (header.SequenceEqual(magic))
+                    return true;
+            }
+            return false;
+        }
+
+        public static string GetKLicensee(string workbin)
+        {
+            string klic = "";
+            using (FileStream fs = new FileStream(workbin, FileMode.Open))
+            {
+                byte[] arr = new byte[0x10];
+                fs.Seek(0x50, SeekOrigin.Begin);
+                fs.Read(arr, 0, 0x10);
+                fs.Close();
+                klic = ByteArrayToString(arr);
+            }
+            return klic;
+        }
+
+        // Constants
+        public static byte[] NPDRMMagic = new byte[0x08] { 0x05, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x00 };
+        public static byte[] bootParamsMagic = new byte[0x08] { 0x06, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x00 };
+        public static void ReadSELFHeader(string SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams)
+        {
+            PIH = new byte[0x20];
+            NPDRM = new byte[0x110];
+            bootParams = new byte[0x110];
+
+            // Read SELF
+            byte[] SELFarr = File.ReadAllBytes(SELF);
+            using (FileStream fs = new FileStream(SELF, FileMode.Open))
+            {
+                // Read Program Identification Header
+                fs.Seek(0x80, SeekOrigin.Begin);
+                fs.Read(PIH, 0, 0x20);
+
+                // Read NPDRM Header
+                fs.Seek(PatternAt(SELFarr, Program.NPDRMMagic).FirstOrDefault(), SeekOrigin.Begin);
+                fs.Read(NPDRM, 0, 0x110);
+
+                // Read Boot Params
+                fs.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
+                fs.Read(bootParams, 0, 0x110);
+
+                fs.Close();
+            }
+            return;
+        }
+
+        public static void WriteSELFHeader(string SELF, byte[] PIH, byte[] NPDRM, byte[] bootParams)
+        {
+            // Read SELF
+            byte[] SELFarr = File.ReadAllBytes(SELF);
+            using (FileStream fs = new FileStream(SELF, FileMode.Open))
+            {
+                // Read Program Identification Header
+                fs.Seek(0x80, SeekOrigin.Begin);
+                fs.Write(PIH, 0, 0x20);
+
+                // Read NPDRM Header
+                int offset = PatternAt(SELFarr, NPDRMMagic).FirstOrDefault();
+                fs.Seek(offset, SeekOrigin.Begin);
+                fs.Write(NPDRM, 0, 0x110);
+                fs.Seek(offset + 0x18, SeekOrigin.Begin);
+                fs.Write(new byte[] { 0x00, 0x00, 0x00, 0x00 }, 0, 0x04);    // 0x00 DRM Type Unknown (official name) // 0x0D Free (PSP2/PSM)
+
+                // Read Boot Params
+                fs.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
+                fs.Write(bootParams, 0, 0x110);
+
+                fs.Close();
+            }
+            return;
+        }
 
         public static void RecursiveDelete(DirectoryInfo baseDir, bool isRootDir)
         {

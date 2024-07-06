@@ -6,5 +6,6 @@ namespace PSVitaNPDRMDecryptor {
 		public string OutputDir { get; set; }
 		public bool CompressELFs { get; set; }
         public bool AddSuffix { get; set; }
+        public bool MakeVPK { get; set; }
     }
 }

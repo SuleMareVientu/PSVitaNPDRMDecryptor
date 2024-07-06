@@ -586,7 +586,6 @@ namespace WK.Libraries.BetterFolderBrowserNS.Helpers
 
         #region Fields
 
-        private bool allow_multiselect;
         private OpenFileDialog ofd = null;
 
         #endregion
@@ -599,7 +598,7 @@ namespace WK.Libraries.BetterFolderBrowserNS.Helpers
         /// <remarks></remarks>
         public bool AllowMultiselect
         {
-            get { return allow_multiselect; }
+            get { return ofd.Multiselect; }
             set { ofd.Multiselect = value; }
         }
 

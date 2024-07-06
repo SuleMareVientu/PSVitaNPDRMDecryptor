@@ -31,7 +31,7 @@ namespace PSVitaNPDRMDecryptor {
             Program.form.txtOutputDir.Enabled = state;
             Program.form.chkCompressELFs.Enabled = state;
             Program.form.chkAddSuffix.Enabled = state;
-            Program.form.chkCompressELFs.Enabled = state;
+            Program.form.chkVPK.Enabled = state;
             return;
         }
 
@@ -63,7 +63,8 @@ namespace PSVitaNPDRMDecryptor {
 				OutputDir = txtOutputDir.Text,
 				CompressELFs = chkCompressELFs.Checked,
 				AddSuffix = chkAddSuffix.Checked,
-			};
+                MakeVPK = chkVPK.Checked,
+            };
 		}
 
 		private void btnAdd_Click(object sender, EventArgs e) {
@@ -75,7 +76,7 @@ namespace PSVitaNPDRMDecryptor {
                 {
                     foreach (string filepath in d.SelectedFolders)
                     {
-                        if (!File.Exists(filepath) && Directory.Exists(filepath) && !listBox1.Items.Contains(filepath))
+                        if (IsFolderValid(filepath))
                             listBox1.Items.Add(filepath);
                     }
                 }
@@ -106,7 +107,7 @@ namespace PSVitaNPDRMDecryptor {
 			string[] data = e.Data.GetData("FileDrop") as string[];
 			if (data != null) {
 				foreach (string filepath in data) {
-                    if (!File.Exists(filepath) && Directory.Exists(filepath) && !listBox1.Items.Contains(filepath))
+                    if (IsFolderValid(filepath))
                         listBox1.Items.Add(filepath);
                 }
 			}
@@ -165,6 +166,17 @@ namespace PSVitaNPDRMDecryptor {
 			}
 			this.Text = text;
 		}
+
+		private bool IsFolderValid(string filepath)
+		{
+			if (!File.Exists(filepath) && Directory.Exists(filepath) && !listBox1.Items.Contains(filepath))
+			{
+				if (File.Exists(filepath.TrimEnd(Path.DirectorySeparatorChar) + "\\sce_sys\\package\\work.bin"))
+					return true;
+            }
+
+			return false;
+        }
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {

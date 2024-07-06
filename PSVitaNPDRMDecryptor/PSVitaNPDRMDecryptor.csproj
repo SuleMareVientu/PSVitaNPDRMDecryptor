@@ -118,11 +118,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PSV.ico" />
-    <Content Include="Resources\Arrow-x50.png" />
+    <None Include="Resources\Arrow-x42.png" />
     <Content Include="Resources\Arrow.png" />
-    <Content Include="Resources\Cross-x50.png" />
+    <None Include="Resources\Cross-x42.png" />
     <Content Include="Resources\Cross.png" />
-    <Content Include="Resources\Plus-x50.png" />
+    <None Include="Resources\Plus-x42.png" />
     <Content Include="Resources\Plus.png" />
   </ItemGroup>
   <ItemGroup>

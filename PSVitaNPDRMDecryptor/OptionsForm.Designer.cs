@@ -36,15 +36,16 @@
             this.txtOutputDir = new System.Windows.Forms.TextBox();
             this.lblOutputDir = new System.Windows.Forms.Label();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.btnAdd = new System.Windows.Forms.Button();
-            this.btnRemove = new System.Windows.Forms.Button();
             this.lblEnumerationStatus = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.chkAddSuffix = new System.Windows.Forms.CheckBox();
-            this.btnOkay = new System.Windows.Forms.Button();
             this.toolTipAdd = new System.Windows.Forms.ToolTip(this.components);
             this.toolTipRemove = new System.Windows.Forms.ToolTip(this.components);
             this.toolTipStart = new System.Windows.Forms.ToolTip(this.components);
+            this.chkVPK = new System.Windows.Forms.CheckBox();
+            this.btnOkay = new System.Windows.Forms.Button();
+            this.btnAdd = new System.Windows.Forms.Button();
+            this.btnRemove = new System.Windows.Forms.Button();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -120,30 +121,6 @@
             this.listBox1.DragDrop += new System.Windows.Forms.DragEventHandler(this.listBox1_DragDrop);
             this.listBox1.DragEnter += new System.Windows.Forms.DragEventHandler(this.listBox1_DragEnter);
             // 
-            // btnAdd
-            // 
-            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdd.BackgroundImage = global::PSVitaNPDRMDecryptor.Properties.Resources.Plus_x50;
-            this.btnAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnAdd.Location = new System.Drawing.Point(3, 3);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(50, 50);
-            this.btnAdd.TabIndex = 0;
-            this.btnAdd.UseVisualStyleBackColor = true;
-            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
-            // 
-            // btnRemove
-            // 
-            this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRemove.BackgroundImage = global::PSVitaNPDRMDecryptor.Properties.Resources.Cross_x50;
-            this.btnRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnRemove.Location = new System.Drawing.Point(3, 59);
-            this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(50, 50);
-            this.btnRemove.TabIndex = 2;
-            this.btnRemove.UseVisualStyleBackColor = true;
-            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
-            // 
             // lblEnumerationStatus
             // 
             this.lblEnumerationStatus.AutoSize = true;
@@ -179,23 +156,58 @@
             this.chkAddSuffix.Text = "Add \"_dec\" suffix";
             this.chkAddSuffix.UseVisualStyleBackColor = false;
             // 
+            // toolTipAdd
+            // 
+            this.toolTipAdd.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTip1_Popup);
+            // 
+            // chkVPK
+            // 
+            this.chkVPK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkVPK.AutoSize = true;
+            this.chkVPK.Location = new System.Drawing.Point(308, 186);
+            this.chkVPK.Name = "chkVPK";
+            this.chkVPK.Size = new System.Drawing.Size(77, 17);
+            this.chkVPK.TabIndex = 8;
+            this.chkVPK.Text = "Make VPK";
+            this.chkVPK.UseVisualStyleBackColor = false;
+            // 
             // btnOkay
             // 
             this.btnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOkay.BackgroundImage = global::PSVitaNPDRMDecryptor.Properties.Resources.Arrow_x50;
+            this.btnOkay.BackgroundImage = global::PSVitaNPDRMDecryptor.Properties.Resources.Arrow_x42;
             this.btnOkay.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnOkay.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOkay.Location = new System.Drawing.Point(3, 150);
-            this.btnOkay.Margin = new System.Windows.Forms.Padding(3, 25, 3, 3);
+            this.btnOkay.Location = new System.Drawing.Point(3, 151);
+            this.btnOkay.Margin = new System.Windows.Forms.Padding(3, 26, 3, 3);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(50, 50);
             this.btnOkay.TabIndex = 3;
             this.btnOkay.UseVisualStyleBackColor = true;
             this.btnOkay.Click += new System.EventHandler(this.btnOkay_Click);
             // 
-            // toolTipAdd
+            // btnAdd
             // 
-            this.toolTipAdd.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTip1_Popup);
+            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAdd.BackgroundImage = global::PSVitaNPDRMDecryptor.Properties.Resources.Plus_x42;
+            this.btnAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnAdd.Location = new System.Drawing.Point(3, 3);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(50, 50);
+            this.btnAdd.TabIndex = 0;
+            this.btnAdd.UseVisualStyleBackColor = true;
+            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            // 
+            // btnRemove
+            // 
+            this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemove.BackgroundImage = global::PSVitaNPDRMDecryptor.Properties.Resources.Cross_x42;
+            this.btnRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnRemove.Location = new System.Drawing.Point(3, 59);
+            this.btnRemove.Name = "btnRemove";
+            this.btnRemove.Size = new System.Drawing.Size(50, 50);
+            this.btnRemove.TabIndex = 2;
+            this.btnRemove.UseVisualStyleBackColor = true;
+            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
             // 
             // OptionsForm
             // 
@@ -203,6 +215,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(451, 210);
+            this.Controls.Add(this.chkVPK);
             this.Controls.Add(this.chkAddSuffix);
             this.Controls.Add(this.chkCompressELFs);
             this.Controls.Add(this.btnBrowse);
@@ -239,5 +252,6 @@
         private System.Windows.Forms.ToolTip toolTipAdd;
         private System.Windows.Forms.ToolTip toolTipRemove;
         private System.Windows.Forms.ToolTip toolTipStart;
+        private System.Windows.Forms.CheckBox chkVPK;
     }
 }

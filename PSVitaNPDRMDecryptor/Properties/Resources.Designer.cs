@@ -63,9 +63,9 @@ namespace PSVitaNPDRMDecryptor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Arrow_x50 {
+        internal static System.Drawing.Bitmap Arrow_x42 {
             get {
-                object obj = ResourceManager.GetObject("Arrow_x50", resourceCulture);
+                object obj = ResourceManager.GetObject("Arrow_x42", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace PSVitaNPDRMDecryptor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Cross_x50 {
+        internal static System.Drawing.Bitmap Cross_x42 {
             get {
-                object obj = ResourceManager.GetObject("Cross_x50", resourceCulture);
+                object obj = ResourceManager.GetObject("Cross_x42", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,9 +83,9 @@ namespace PSVitaNPDRMDecryptor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Plus_x50 {
+        internal static System.Drawing.Bitmap Plus_x42 {
             get {
-                object obj = ResourceManager.GetObject("Plus_x50", resourceCulture);
+                object obj = ResourceManager.GetObject("Plus_x42", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
