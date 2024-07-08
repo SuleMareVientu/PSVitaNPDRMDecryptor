@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Compression;
 using System.Text;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static PSVitaNPDRMDecryptor.Program.Param;
 
 namespace PSVitaNPDRMDecryptor {
@@ -417,7 +416,7 @@ namespace PSVitaNPDRMDecryptor {
                     if ((AttributeInt & 1024) == 1024)
                     {
                         ATTRIBUTE = BitConverter.GetBytes(AttributeInt & ~1024); ATTRIBUTE.Reverse();
-                        fs.Seek(param.dataOffset, SeekOrigin.Begin);
+                        fs.Seek(offset, SeekOrigin.Begin);
                         fs.Write(ATTRIBUTE, 0, 0x04);
                         status = true;
                     }
