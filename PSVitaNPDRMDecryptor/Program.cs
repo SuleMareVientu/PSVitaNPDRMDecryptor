@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO.Compression;
 
 namespace PSVitaNPDRMDecryptor {
     class Program {
@@ -41,13 +41,16 @@ namespace PSVitaNPDRMDecryptor {
 			foreach (string inputDir in o.InputFolders) {
 				if (window.Canceled) break;
 
-                /// Paths
+                // Paths
                 string inputDirTrimmed = inputDir.TrimEnd(Path.DirectorySeparatorChar);
-                string dirName = Path.GetFileName(inputDirTrimmed);
-                string outputDir = o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName;
-                if (o.AddSuffix) outputDir += "_dec";   //Check if suffix is needed
                 string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
+                string dirName = Path.GetFileName(inputDirTrimmed);
+                string outputDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName);
+                if (o.AddSuffix) outputDir += "_dec";   //Check if suffix is needed
                 string paramsfo = outputDir + "\\sce_sys\\param.sfo";
+                string livearea = outputDir + "\\sce_sys\\livearea";
+                string retail = outputDir + "\\sce_sys\\retail";
+                string retailLivearea = outputDir + "\\sce_sys\\retail\\livearea";
                 string clearsign = outputDir + "\\sce_sys\\clearsign";
                 string keystone = outputDir + "\\sce_sys\\keystone";
 
@@ -60,8 +63,8 @@ namespace PSVitaNPDRMDecryptor {
 				}
                 else
                 {
-                    DirectoryInfo di = new DirectoryInfo(outputDir);
-                    RecursiveDelete(di, true);
+                    Directory.Delete(outputDir, true);
+                    Directory.CreateDirectory(outputDir);
                 }
 
                 window.SetDecodingText(dirName);
@@ -73,7 +76,7 @@ namespace PSVitaNPDRMDecryptor {
                 string compressCommand = "";
                 if (o.CompressELFs) compressCommand = " --compress";
 
-                string[] files = Directory.GetFiles(outputDir, "*.*", SearchOption.AllDirectories);
+                string[] files = Directory.GetFiles(outputDir, "*", SearchOption.AllDirectories);
                 foreach (string SELF in files)
                 {
                     if (!IsSELF(SELF.TrimEnd(Path.DirectorySeparatorChar)))
@@ -93,8 +96,23 @@ namespace PSVitaNPDRMDecryptor {
 
                 PatchParamSfo(paramsfo);
 
+                // Use retail livearea for game demos
+                if (Directory.Exists(retailLivearea))
+                {
+                    Directory.Delete(livearea, true);           //Directory.Move(retaillivearea, outputDir + "\\sce_sys\\sce_sys");
+                    Directory.Move(retailLivearea, livearea);   //MoveCMD(outputDir + "\\sce_sys\\sce_sys", outputDir);
+                    Directory.Delete(retail, true);
+                }
+
                 File.Delete(clearsign);
                 File.Delete(keystone);
+
+                if (o.MakeVPK)
+                {
+                    File.Delete(outputDir + ".vpk");
+                    ZipFile.CreateFromDirectory(outputDir, outputDir + ".vpk");
+                    Directory.Delete(outputDir, true);
+                }
             }
 
 			if (window.Visible) window.BeginInvoke(new Action(() => {
@@ -257,8 +275,9 @@ namespace PSVitaNPDRMDecryptor {
             return;
         }
 
-        public static void PatchParamSfo(string paramsfo)
+        public static bool PatchParamSfo(string paramsfo)
         {
+            bool status = false;
             // Clear "Application is upgradable" bit in param.sfo "ATTRIBUTE"
             using (FileStream fs = new FileStream(paramsfo, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
             {
@@ -269,26 +288,34 @@ namespace PSVitaNPDRMDecryptor {
                 int AttributeOffsetInt = BitConverter.ToInt32(KeyTableStartOffset, 0) + 0x08;
                 fs.Seek(AttributeOffsetInt, SeekOrigin.Begin);
                 fs.Read(ATTRIBUTE, 0, 0x04); ATTRIBUTE.Reverse();
-                ATTRIBUTE = BitConverter.GetBytes(BitConverter.ToInt32(ATTRIBUTE, 0) & ~1024); ATTRIBUTE.Reverse();
-                fs.Seek(AttributeOffsetInt, SeekOrigin.Begin);
-                fs.Write(ATTRIBUTE, 0, 0x04);
+                int AttributeInt = BitConverter.ToInt32(ATTRIBUTE, 0);
+                if ((AttributeInt & 1024) == 1024)
+                {
+                    ATTRIBUTE = BitConverter.GetBytes(AttributeInt & ~1024); ATTRIBUTE.Reverse();
+                    fs.Seek(AttributeOffsetInt, SeekOrigin.Begin);
+                    fs.Write(ATTRIBUTE, 0, 0x04);
+                    status = true;
+                }
                 fs.Close();
             }
-            return;
+            return status;
         }
 
-        public static void RecursiveDelete(DirectoryInfo baseDir, bool isRootDir)
+        /*
+        public static void MoveCMD(string source, string target)
         {
-            if (!baseDir.Exists)
-                return;
-            foreach (var dir in baseDir.EnumerateDirectories()) RecursiveDelete(dir, false);
-            foreach (var file in baseDir.GetFiles())
+            ProcessStartInfo psi = new ProcessStartInfo
             {
-                file.IsReadOnly = false;
-                file.Delete();
-            }
-            if (!isRootDir) baseDir.Delete();
+                FileName = "cmd.exe",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                Arguments = "/C robocopy \"" + source + "\" \"" + target + "\" /MOVE /E /R:100 /W:3"   // /COPYALL /DCOPY:DAT
+                //Arguments = "/C SET COPYCMD=/Y && move \"" + source + "\" \"" + target + "\""
+            };
+            Process p = Process.Start(psi);
+            p.WaitForExit();
         }
+        */
 
         public static string ByteArrayToString(byte[] ba)
         {
