@@ -32,7 +32,19 @@ namespace PSVitaNPDRMDecryptor {
 			lblDecoding.Text = text;
 		}
 
-		public MultipleProgressRow AddEncodingRow(string text) {
+        public void SetDecodingPhase(string text)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new Action(() => {
+                    SetDecodingPhase(text);
+                }));
+                return;
+            }
+            groupBox1.Text = text;
+        }
+
+        public MultipleProgressRow AddEncodingRow(string text) {
 			if (this.InvokeRequired) {
 				return (MultipleProgressRow)this.Invoke(new Func<MultipleProgressRow>(() => {
 					return AddEncodingRow(text);

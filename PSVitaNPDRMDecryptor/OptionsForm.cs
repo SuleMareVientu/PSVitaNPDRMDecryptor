@@ -59,8 +59,9 @@ namespace PSVitaNPDRMDecryptor {
 				InputFolders = filenames,
 				OutputDir = txtOutputDir.Text,
 				CompressELFs = chkCompressELFs.Checked,
-				AddSuffix = chkAddSuffix.Checked,
                 MakeVPK = chkVPK.Checked,
+                UseTitleID = chkUseTitleID.Checked,
+                AddSuffix = chkAddSuffix.Checked,
             };
 		}
 

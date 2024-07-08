@@ -25,15 +25,17 @@ namespace PSVitaNPDRMDecryptor {
         /// </summary>
         /// <param name="o">Options for the batch.</param>
 		public static void Run(Options o) {
-			MultipleProgressWindow window = new MultipleProgressWindow();
+            if (!o.InputFolders.Any())
+            {
+                MessageBox.Show("No input folders were selected.");
+                return;
+            }
+
+            MultipleProgressWindow window = new MultipleProgressWindow();
 			new Thread(new ThreadStart(() => {
 				Application.EnableVisualStyles();
 				window.ShowDialog();
 			})).Start();
-
-			if (!o.InputFolders.Any()) {
-				MessageBox.Show("No input folders were selected.");
-			}
 
 			int i = 0;
 			float maxProgress = o.InputFolders.Count();
@@ -46,7 +48,9 @@ namespace PSVitaNPDRMDecryptor {
                 // Paths
                 string inputDirTrimmed = inputDir.TrimEnd(Path.DirectorySeparatorChar);
                 string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
-                string dirName = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo").Remove(0, 7).Remove(9, 20);
+                string titleID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo").Remove(0, 7).Remove(9, 20);
+                string dirName = Path.GetFileName(inputDirTrimmed);
+                if (o.UseTitleID) dirName = titleID;
                 string outputDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName);
                 if (o.AddSuffix) outputDir += "_dec";   //Check if suffix is needed
                 string paramsfo = outputDir + "\\sce_sys\\param.sfo";
@@ -69,7 +73,8 @@ namespace PSVitaNPDRMDecryptor {
                     Directory.CreateDirectory(outputDir);
                 }
 
-                window.SetDecodingText(dirName);
+                window.SetDecodingText(titleID);
+                window.SetDecodingPhase("Decrypting");
                 window.Update(++i / maxProgress);
 
                 DecryptPFS(inputDir, outputDir, GetKLicensee(workbin));
@@ -77,6 +82,7 @@ namespace PSVitaNPDRMDecryptor {
                 // Check if ELFs should be compressed
                 string compressCommand = "";
                 if (o.CompressELFs) compressCommand = " --compress";
+                window.SetDecodingPhase("Patching SELFs");
 
                 string[] files = Directory.GetFiles(outputDir, "*", SearchOption.AllDirectories);
                 foreach (string SELF in files)
@@ -111,6 +117,7 @@ namespace PSVitaNPDRMDecryptor {
 
                 if (o.MakeVPK)
                 {
+                    window.SetDecodingPhase("Making VPK");
                     File.Delete(outputDir + ".vpk");
                     ZipFile.CreateFromDirectory(outputDir, outputDir + ".vpk", CompressionLevel.Optimal, false);
                     Directory.Delete(outputDir, true);
