@@ -46,7 +46,7 @@ namespace PSVitaNPDRMDecryptor {
                 // Paths
                 string inputDirTrimmed = inputDir.TrimEnd(Path.DirectorySeparatorChar);
                 string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
-                string dirName = Path.GetFileName(inputDirTrimmed);
+                string dirName = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo").Remove(0, 7).Remove(9, 20);
                 string outputDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName);
                 if (o.AddSuffix) outputDir += "_dec";   //Check if suffix is needed
                 string paramsfo = outputDir + "\\sce_sys\\param.sfo";
@@ -112,7 +112,7 @@ namespace PSVitaNPDRMDecryptor {
                 if (o.MakeVPK)
                 {
                     File.Delete(outputDir + ".vpk");
-                    ZipFile.CreateFromDirectory(outputDir, outputDir + ".vpk");
+                    ZipFile.CreateFromDirectory(outputDir, outputDir + ".vpk", CompressionLevel.Optimal, false);
                     Directory.Delete(outputDir, true);
                 }
             }
@@ -210,12 +210,12 @@ namespace PSVitaNPDRMDecryptor {
         public static string GetKLicensee(string workbin)
         {
             string klic = "";
-            using (FileStream fs = new FileStream(workbin, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (BinaryReader br = new BinaryReader(File.Open(workbin, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
                 byte[] arr = new byte[0x10];
-                fs.Seek(0x50, SeekOrigin.Begin);
-                fs.Read(arr, 0, 0x10);
-                fs.Close();
+                br.BaseStream.Seek(0x50, SeekOrigin.Begin);
+                br.Read(arr, 0, 0x10);
+                br.Close();
                 klic = ByteArrayToString(arr);
             }
             return klic;
@@ -387,7 +387,7 @@ namespace PSVitaNPDRMDecryptor {
                             if (param.paramFMT == (ushort)ParamFMT.uint32)
                                 param.dataInt = br.ReadUInt32();
                             else if (param.paramFMT == (ushort)ParamFMT.UTF8String || param.paramFMT == (ushort)ParamFMT.UTF8Special)
-                                param.dataString = Encoding.UTF8.GetString(br.ReadBytes((int)param.paramLen));
+                                param.dataString = Encoding.UTF8.GetString(br.ReadBytes((int)param.paramLen - 1));
 
                             paramList.Add(param);
                         }
@@ -424,6 +424,18 @@ namespace PSVitaNPDRMDecryptor {
                 }
             }
             return status;
+        }
+
+        public static string GetContentID(string paramsfo)
+        {
+            // Clear "Application is upgradable" bit in param.sfo "ATTRIBUTE"
+            LoadSFO(paramsfo);
+            foreach (Param param in paramList)
+            {
+                if (param.name == "CONTENT_ID")
+                    return param.dataString;
+            }
+            return "";
         }
     }
 }
