@@ -7,6 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Compression;
+using System.Text;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static PSVitaNPDRMDecryptor.Program.Param;
 
 namespace PSVitaNPDRMDecryptor {
     class Program {
@@ -229,22 +232,25 @@ namespace PSVitaNPDRMDecryptor {
             bootParams = new byte[0x110];
 
             // Read SELF
-            byte[] SELFarr = File.ReadAllBytes(SELF);
+            const int maxSELFRead = 0x2710;
+            byte[] SELFarr = new byte[maxSELFRead];
             using (FileStream fs = new FileStream(SELF, FileMode.Open, FileAccess.Read, FileShare.Read))
+            { fs.Read(SELFarr, 0, maxSELFRead); fs.Close(); }
+
+            using (BinaryReader br = new BinaryReader(File.Open(SELF, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
                 // Read Program Identification Header
-                fs.Seek(0x80, SeekOrigin.Begin);
-                fs.Read(PIH, 0, 0x20);
+                br.BaseStream.Seek(0x80, SeekOrigin.Begin);
+                br.Read(PIH, 0, 0x20);
 
                 // Read NPDRM Header
-                fs.Seek(PatternAt(SELFarr, Program.NPDRMMagic).FirstOrDefault(), SeekOrigin.Begin);
-                fs.Read(NPDRM, 0, 0x110);
+                br.BaseStream.Seek(PatternAt(SELFarr, Program.NPDRMMagic).FirstOrDefault(), SeekOrigin.Begin);
+                br.Read(NPDRM, 0, 0x110);
 
                 // Read Boot Params
-                fs.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
-                fs.Read(bootParams, 0, 0x110);
-
-                fs.Close();
+                br.BaseStream.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
+                br.Read(bootParams, 0, 0x110);
+                br.Close();
             }
             return;
         }
@@ -252,53 +258,30 @@ namespace PSVitaNPDRMDecryptor {
         public static void WriteSELFHeader(string SELF, byte[] PIH, byte[] NPDRM, byte[] bootParams)
         {
             // Read SELF
-            byte[] SELFarr = File.ReadAllBytes(SELF);
-            using (FileStream fs = new FileStream(SELF, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
+            const int maxSELFRead = 0x2710;
+            byte[] SELFarr = new byte[maxSELFRead];
+            using (FileStream fs = new FileStream(SELF, FileMode.Open, FileAccess.Read, FileShare.Read))
+            { fs.Read(SELFarr, 0, maxSELFRead); fs.Close(); }
+
+            using (BinaryWriter bw = new BinaryWriter(File.Open(SELF, FileMode.Open, FileAccess.Write, FileShare.Read)))
             {
                 // Read Program Identification Header
-                fs.Seek(0x80, SeekOrigin.Begin);
-                fs.Write(PIH, 0, 0x20);
+                bw.BaseStream.Seek(0x80, SeekOrigin.Begin);
+                bw.Write(PIH, 0, 0x20);
 
                 // Read NPDRM Header
                 int offset = PatternAt(SELFarr, NPDRMMagic).FirstOrDefault();
-                fs.Seek(offset, SeekOrigin.Begin);
-                fs.Write(NPDRM, 0, 0x110);
-                fs.Seek(offset + 0x18, SeekOrigin.Begin);
-                fs.Write(new byte[] { 0x00, 0x00, 0x00, 0x00 }, 0, 0x04);    // 0x00 DRM Type Unknown (official name) // 0x0D Free (PSP2/PSM)
+                bw.BaseStream.Seek(offset, SeekOrigin.Begin);
+                bw.Write(NPDRM, 0, 0x110);
+                bw.BaseStream.Seek(offset + 0x18, SeekOrigin.Begin);
+                bw.Write(new byte[] { 0x00, 0x00, 0x00, 0x00 }, 0, 0x04);    // 0x00 DRM Type Unknown (official name) // 0x0D Free (PSP2/PSM)
 
                 // Read Boot Params
-                fs.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
-                fs.Write(bootParams, 0, 0x110);
-
-                fs.Close();
+                bw.BaseStream.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
+                bw.Write(bootParams, 0, 0x110);
+                bw.Close();
             }
             return;
-        }
-
-        public static bool PatchParamSfo(string paramsfo)
-        {
-            bool status = false;
-            // Clear "Application is upgradable" bit in param.sfo "ATTRIBUTE"
-            using (FileStream fs = new FileStream(paramsfo, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
-            {
-                byte[] KeyTableStartOffset = new byte[0x04];
-                byte[] ATTRIBUTE = new byte[0x04];
-                fs.Seek(0x0C, SeekOrigin.Begin);
-                fs.Read(KeyTableStartOffset, 0, 0x04); KeyTableStartOffset.Reverse();
-                int AttributeOffsetInt = BitConverter.ToInt32(KeyTableStartOffset, 0) + 0x08;
-                fs.Seek(AttributeOffsetInt, SeekOrigin.Begin);
-                fs.Read(ATTRIBUTE, 0, 0x04); ATTRIBUTE.Reverse();
-                int AttributeInt = BitConverter.ToInt32(ATTRIBUTE, 0);
-                if ((AttributeInt & 1024) == 1024)
-                {
-                    ATTRIBUTE = BitConverter.GetBytes(AttributeInt & ~1024); ATTRIBUTE.Reverse();
-                    fs.Seek(AttributeOffsetInt, SeekOrigin.Begin);
-                    fs.Write(ATTRIBUTE, 0, 0x04);
-                    status = true;
-                }
-                fs.Close();
-            }
-            return status;
         }
 
         /*
@@ -331,6 +314,117 @@ namespace PSVitaNPDRMDecryptor {
                     yield return i;
                 }
             }
+        }
+
+        public class Param
+        {
+            public enum ParamFMT
+            {
+                UTF8Special = 0x0004,   // 04 00
+                UTF8String = 0x0204,    // 04 02
+                uint32 = 0x0404         // 04 04
+            }
+
+            public int keyTableOffset;
+            public int dataTableOffset;
+            public int indexTableEntries;
+
+            public ushort keyOffset;
+            public ushort paramFMT;
+            public uint paramLen;
+            public uint paramMaxLen;
+            public uint dataOffset;
+
+            public string name;
+            public uint dataInt;
+            public string dataString;
+
+            public void Load(BinaryReader br)
+            {
+                keyOffset = br.ReadUInt16();
+                paramFMT = br.ReadUInt16();
+                paramLen = br.ReadUInt32();
+                paramMaxLen = br.ReadUInt32();
+                dataOffset = br.ReadUInt32();
+            }
+        }
+
+        public static List<Param> paramList;
+
+        public static void LoadSFO(string sfoFile)
+        {
+            if (!File.Exists(sfoFile))
+                return;
+            try
+            {
+                using (BinaryReader br = new BinaryReader(File.OpenRead(sfoFile)))
+                {
+                    const int PSFMagic = 0x46535000;    // 00 50 53 46
+                    if (br.ReadInt32() != PSFMagic)
+                        throw new Exception("Not a SFO file!");
+
+                    int version = br.ReadInt32();
+                    int keyTableOffset = br.ReadInt32();
+                    int dataTableOffset = br.ReadInt32();
+                    int indexTableEntries = br.ReadInt32();
+                    paramList = new List<Param>();
+                    checked
+                    {
+                        for (int i = 0; i < indexTableEntries; i++)
+                        {
+                            Param param = new Param();
+                            param.keyTableOffset = keyTableOffset;
+                            param.dataTableOffset = dataTableOffset;
+                            param.indexTableEntries = indexTableEntries;
+                            br.BaseStream.Seek(20 + i * 16, SeekOrigin.Begin);
+                            param.Load(br);
+                            br.BaseStream.Seek(keyTableOffset + param.keyOffset, SeekOrigin.Begin);
+                            int keyLength = 0;
+                            while (br.ReadByte() != 0x00) { keyLength++; }
+                            br.BaseStream.Seek(keyTableOffset + param.keyOffset, SeekOrigin.Begin);
+                            param.name = Encoding.UTF8.GetString(br.ReadBytes(keyLength));
+
+                            br.BaseStream.Seek(dataTableOffset + param.dataOffset, SeekOrigin.Begin);
+                            if (param.paramFMT == (ushort)ParamFMT.uint32)
+                                param.dataInt = br.ReadUInt32();
+                            else if (param.paramFMT == (ushort)ParamFMT.UTF8String || param.paramFMT == (ushort)ParamFMT.UTF8Special)
+                                param.dataString = Encoding.UTF8.GetString(br.ReadBytes((int)param.paramLen));
+
+                            paramList.Add(param);
+                        }
+                    }
+                    br.Close();
+                }
+            }
+            catch (Exception ex) { }
+        }
+
+        public static bool PatchParamSfo(string paramsfo)
+        {
+            bool status = false;
+            // Clear "Application is upgradable" bit in param.sfo "ATTRIBUTE"
+            LoadSFO(paramsfo);
+            foreach (Param param in paramList)
+            {
+                if (param.name != "ATTRIBUTE") continue;
+                using (FileStream fs = new FileStream(paramsfo, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
+                {
+                    byte[] ATTRIBUTE = new byte[0x04];
+                    var offset = param.dataTableOffset + param.dataOffset;
+                    fs.Seek(offset, SeekOrigin.Begin);
+                    fs.Read(ATTRIBUTE, 0, 0x04); ATTRIBUTE.Reverse();
+                    uint AttributeInt = BitConverter.ToUInt32(ATTRIBUTE, 0);
+                    if ((AttributeInt & 1024) == 1024)
+                    {
+                        ATTRIBUTE = BitConverter.GetBytes(AttributeInt & ~1024); ATTRIBUTE.Reverse();
+                        fs.Seek(param.dataOffset, SeekOrigin.Begin);
+                        fs.Write(ATTRIBUTE, 0, 0x04);
+                        status = true;
+                    }
+                    fs.Close();
+                }
+            }
+            return status;
         }
     }
 }
