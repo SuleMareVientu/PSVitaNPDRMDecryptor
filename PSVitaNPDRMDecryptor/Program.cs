@@ -35,6 +35,7 @@ partial class Program
 		MultipleProgressWindow window = new MultipleProgressWindow();
 		new Thread(new ThreadStart(() =>
 		{
+			form.SetFormState(false);
 			Application.EnableVisualStyles();
 			window.ShowDialog();
 		})).Start();
@@ -65,18 +66,12 @@ partial class Program
 
 			if (!Directory.Exists(outputDir))
 			{
-				try
-				{
-					Directory.CreateDirectory(outputDir);
-				}
-				catch (Exception e)
-				{
-					MessageBox.Show("Could not create output directory " + o.OutputDir + ": " + e.Message);
-				}
+				try { Directory.CreateDirectory(outputDir); }
+				catch (Exception e) { MessageBox.Show("Could not create output directory " + o.OutputDir + ": " + e.Message); }
 			}
 			else
 			{
-				Directory.Delete(outputDir, true);
+				DeleteDirectory(outputDir, true);
 				Directory.CreateDirectory(outputDir);
 			}
 
@@ -89,7 +84,6 @@ partial class Program
 			// Check if ELFs should be compressed
 			string compressCommand = "";
 			if (o.CompressELFs) compressCommand = " --compress";
-			window.SetDecodingPhase("Decrypting SELFs");
 
 			string[] files = Directory.GetFiles(outputDir, "*", SearchOption.AllDirectories);
 			foreach (string SELF in files)
@@ -97,42 +91,45 @@ partial class Program
 				if (!IsSELF(SELF.TrimEnd(Path.DirectorySeparatorChar)))
 					continue;
 
+				window.SetDecodingPhase("Decrypting " + Path.GetFileName(SELF));
 				string tmpELF = SELF + ".elf";
 				UnSELF(SELF, tmpELF, workbin);
 
 				ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
-				File.Delete(SELF);	//Delete old eboot
+				DeleteFile(SELF);	//Delete old eboot
 
 				MakeFSELF(tmpELF, SELF, compressCommand);
-				File.Delete(tmpELF);
+				DeleteFile(tmpELF);
 
 				WriteSELFHeader(SELF, PIH, NPDRM, bootParams);
 			}
 
+			window.SetDecodingPhase("Patching param.sfo");
 			PatchParamSFO(paramsfo);
 
 			// Use retail livearea for game demos
 			if (Directory.Exists(retailLivearea))
 			{
-				Directory.Delete(livearea, true);			//Directory.Move(retaillivearea, outputDir + "\\sce_sys\\sce_sys");
-				Directory.Move(retailLivearea, livearea);	//MoveCMD(outputDir + "\\sce_sys\\sce_sys", outputDir);
-				Directory.Delete(retail, true);
+				DeleteDirectory(livearea, true);			//Directory.Move(retaillivearea, outputDir + "\\sce_sys\\sce_sys");
+				Directory.Move(retailLivearea, livearea);   //MoveCMD(outputDir + "\\sce_sys\\sce_sys", outputDir);
+				DeleteDirectory(retail, true);
 			}
 
-			File.Delete(clearsign);
-			File.Delete(keystone);
+			DeleteFile(clearsign);
+			DeleteFile(keystone);
 
 			if (o.MakeVPK)
 			{
 				window.SetDecodingPhase("Making VPK");
-				File.Delete(outputDir + ".vpk");
+				DeleteFile(outputDir + ".vpk");
 				ZipFile.CreateFromDirectory(outputDir, outputDir + ".vpk", CompressionLevel.Optimal, false);
-				Directory.Delete(outputDir, true);
+				DeleteDirectory(outputDir, true);
 			}
 		}
 
 		if (window.Visible) window.BeginInvoke(new Action(() =>
 		{
+			form.SetFormState(true);
 			window.AllowClose = true;
 			window.Close();
 		}));

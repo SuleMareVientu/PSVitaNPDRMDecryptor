@@ -11,6 +11,62 @@ namespace PSVitaNPDRMDecryptor;
 
 partial class Program
 {
+	public static string ByteArrayToString(byte[] ba)
+	{
+		return BitConverter.ToString(ba).Replace("-", "");
+	}
+
+	public static int PatternAt(byte[] src, byte[] pattern)
+	{
+		int maxFirstCharSlot = src.Length - pattern.Length + 1;
+		for (int i = 0; i < maxFirstCharSlot; i++)
+		{
+			if (src[i] != pattern[0])
+				continue;
+
+			if (src.Skip(i).Take(pattern.Length).SequenceEqual(pattern))
+				return i;
+		}
+		return -1;
+	}
+
+	public static void DeleteFile(string file)
+	{
+		if (File.Exists(file))
+		{
+			try { File.Delete(file); }
+			catch (Exception e) { MessageBox.Show("Could not delete \"" + Path.GetFileName(file) + "\": " + e.Message); }
+		}
+		return;
+	}
+
+	public static void DeleteDirectory(string dir, bool recursive = true)
+	{
+		dir = dir.TrimEnd(Path.DirectorySeparatorChar);
+		if (Directory.Exists(dir))
+		{
+			try { Directory.Delete(dir, recursive); }
+			catch (Exception e) { MessageBox.Show("Could not delete \"" + Path.GetFileName(dir) + "\": " + e.Message); }
+		}
+		return;
+	}
+
+	/*
+    public static void MoveCMD(string source, string target)
+    {
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            FileName = "cmd.exe",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            Arguments = "/C robocopy \"" + source + "\" \"" + target + "\" /MOVE /E /R:100 /W:3"   // /COPYALL /DCOPY:DAT
+            //Arguments = "/C SET COPYCMD=/Y && move \"" + source + "\" \"" + target + "\""
+        };
+        Process p = Process.Start(psi);
+        p.WaitForExit();
+    }
+    */
+
 	public const string psvpfsparser = "bin\\psvpfsparser-win64.exe";
 	public static void DecryptPFS(string inputDir, string outputDir, string klic)
 	{
@@ -82,28 +138,38 @@ partial class Program
 		if (Path.GetFileName(SELF.TrimEnd(Path.DirectorySeparatorChar)) == "right.suprx")
 			return false;
 
-		const int magic = 0x00454353;	// 53 43 45 00
-		using (BinaryReader br = new BinaryReader(File.Open(SELF, FileMode.Open, FileAccess.Read, FileShare.Read)))
+		const int magic = 0x00454353;   // 53 43 45 00
+		try
 		{
-			int tmp = br.ReadInt32();
-			br.Close();
-			if (tmp == magic)
-				return true;
+			using (BinaryReader br = new BinaryReader(File.OpenRead(SELF)))
+			{
+				int tmp = br.ReadInt32();
+				br.Close();
+				if (tmp == magic)
+					return true;
+			}
 		}
+		catch (EndOfStreamException) { }
+		catch (Exception e) { MessageBox.Show("Could not read SELF: " + e.Message); }
+
 		return false;
 	}
 
 	public static string GetKLicensee(string workbin)
 	{
 		string klic = "";
-		using (BinaryReader br = new BinaryReader(File.Open(workbin, FileMode.Open, FileAccess.Read, FileShare.Read)))
+		try
 		{
-			byte[] arr = new byte[0x10];
-			br.BaseStream.Seek(0x50, SeekOrigin.Begin);
-			br.Read(arr, 0, 0x10);
-			br.Close();
-			klic = ByteArrayToString(arr);
+			using (BinaryReader br = new BinaryReader(File.OpenRead(workbin)))
+			{
+				byte[] arr = new byte[0x10];
+				br.BaseStream.Seek(0x50, SeekOrigin.Begin);
+				br.Read(arr, 0, 0x10);
+				br.Close();
+				klic = ByteArrayToString(arr);
+			}
 		}
+		catch (Exception e) { MessageBox.Show("Could not read work.bin: " + e.Message); }
 		return klic;
 	}
 
@@ -119,24 +185,36 @@ partial class Program
 		// Read SELF
 		const int maxSELFRead = 0x2710;
 		byte[] SELFarr = new byte[maxSELFRead];
-		using (BinaryReader br = new BinaryReader(File.Open(SELF, FileMode.Open, FileAccess.Read, FileShare.Read)))
-		{ br.BaseStream.Read(SELFarr, 0, maxSELFRead); br.Close(); }
-
-		using (BinaryReader br = new BinaryReader(File.Open(SELF, FileMode.Open, FileAccess.Read, FileShare.Read)))
+		try
 		{
-			// Read Program Identification Header
-			br.BaseStream.Seek(0x80, SeekOrigin.Begin);
-			br.Read(PIH, 0, 0x20);
+			using (BinaryReader br = new BinaryReader(File.OpenRead(SELF)))
+			{ br.BaseStream.Read(SELFarr, 0, maxSELFRead); br.Close(); }
 
-			// Read NPDRM Header
-			br.BaseStream.Seek(PatternAt(SELFarr, Program.NPDRMMagic).FirstOrDefault(), SeekOrigin.Begin);
-			br.Read(NPDRM, 0, 0x110);
+			using (BinaryReader br = new BinaryReader(File.OpenRead(SELF)))
+			{
+				// Read Program Identification Header
+				br.BaseStream.Seek(0x80, SeekOrigin.Begin);
+				br.Read(PIH, 0, 0x20);
 
-			// Read Boot Params
-			br.BaseStream.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
-			br.Read(bootParams, 0, 0x110);
-			br.Close();
+				// Read NPDRM Header
+				int offset = PatternAt(SELFarr, NPDRMMagic);
+				if (offset >= 0)
+				{
+					br.BaseStream.Seek(offset, SeekOrigin.Begin);
+					br.Read(NPDRM, 0, 0x110);
+				}
+
+				// Read Boot Params
+				offset = PatternAt(SELFarr, bootParamsMagic);
+				if (offset >= 0)
+				{
+					br.BaseStream.Seek(offset, SeekOrigin.Begin);
+					br.Read(bootParams, 0, 0x110);
+				}
+				br.Close();
+			}
 		}
+		catch (Exception e) { MessageBox.Show("Could not read SELF header: " + e.Message); }
 		return;
 	}
 
@@ -145,60 +223,40 @@ partial class Program
 		// Read SELF
 		const int maxSELFRead = 0x2710;
 		byte[] SELFarr = new byte[maxSELFRead];
-		using (BinaryReader br = new BinaryReader(File.Open(SELF, FileMode.Open, FileAccess.Read, FileShare.Read)))
-		{ br.BaseStream.Read(SELFarr, 0, maxSELFRead); br.Close(); }
 
-		using (BinaryWriter bw = new BinaryWriter(File.Open(SELF, FileMode.Open, FileAccess.Write, FileShare.Read)))
+		try
 		{
-			// Read Program Identification Header
-			bw.BaseStream.Seek(0x80, SeekOrigin.Begin);
-			bw.Write(PIH, 0, 0x20);
+			using (BinaryReader br = new BinaryReader(File.OpenRead(SELF)))
+			{ br.BaseStream.Read(SELFarr, 0, maxSELFRead); br.Close(); }
 
-			// Read NPDRM Header
-			int offset = PatternAt(SELFarr, NPDRMMagic).FirstOrDefault();
-			bw.BaseStream.Seek(offset, SeekOrigin.Begin);
-			bw.Write(NPDRM, 0, 0x110);
-			bw.BaseStream.Seek(offset + 0x18, SeekOrigin.Begin);
-			bw.Write(new byte[] { 0x00, 0x00, 0x00, 0x00 }, 0, 0x04);	// 0x00 DRM Type Unknown (official name) // 0x0D Free (PSP2/PSM)
-
-			// Read Boot Params
-			bw.BaseStream.Seek(PatternAt(SELFarr, bootParamsMagic).FirstOrDefault(), SeekOrigin.Begin);
-			bw.Write(bootParams, 0, 0x110);
-			bw.Close();
-		}
-		return;
-	}
-
-	/*
-    public static void MoveCMD(string source, string target)
-    {
-        ProcessStartInfo psi = new ProcessStartInfo
-        {
-            FileName = "cmd.exe",
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            Arguments = "/C robocopy \"" + source + "\" \"" + target + "\" /MOVE /E /R:100 /W:3"   // /COPYALL /DCOPY:DAT
-            //Arguments = "/C SET COPYCMD=/Y && move \"" + source + "\" \"" + target + "\""
-        };
-        Process p = Process.Start(psi);
-        p.WaitForExit();
-    }
-    */
-
-	public static string ByteArrayToString(byte[] ba)
-	{
-		return BitConverter.ToString(ba).Replace("-", "");
-	}
-
-	public static IEnumerable<int> PatternAt(byte[] source, byte[] pattern)
-	{
-		for (int i = 0; i < source.Length; i++)
-		{
-			if (source.Skip(i).Take(pattern.Length).SequenceEqual(pattern))
+			using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(SELF)))
 			{
-				yield return i;
+				// Read Program Identification Header
+				bw.BaseStream.Seek(0x80, SeekOrigin.Begin);
+				bw.Write(PIH, 0, 0x20);
+
+				// Read NPDRM Header
+				int offset = PatternAt(SELFarr, NPDRMMagic);
+				if (offset >= 0 && NPDRM != null)
+				{
+					bw.BaseStream.Seek(offset, SeekOrigin.Begin);
+					bw.Write(NPDRM, 0, 0x110);
+					bw.BaseStream.Seek(offset + 0x18, SeekOrigin.Begin);
+					bw.Write(new byte[] { 0x00, 0x00, 0x00, 0x00 }, 0, 0x04);   // 0x00 DRM Type Unknown (official name) // 0x0D Free (PSP2/PSM)
+				}
+
+				// Read Boot Params
+				offset = PatternAt(SELFarr, bootParamsMagic);
+				if (offset >= 0 && bootParams != null)
+				{
+					bw.BaseStream.Seek(offset, SeekOrigin.Begin);
+					bw.Write(bootParams, 0, 0x110);
+				}
+				bw.Close();
 			}
 		}
+		catch (Exception e) { MessageBox.Show("Could not write SELF header: " + e.Message); }
+		return;
 	}
 
 	public class Param
@@ -244,9 +302,12 @@ partial class Program
 		{
 			using (BinaryReader br = new BinaryReader(File.OpenRead(sfoFile)))
 			{
-				const int PSFMagic = 0x46535000;	// 00 50 53 46
+				const int PSFMagic = 0x46535000;    // 00 50 53 46
 				if (br.ReadInt32() != PSFMagic)
-					throw new Exception("Not a SFO file!");
+				{
+					br.Close();
+					return;
+				}
 
 				int version = br.ReadInt32();
 				int keyTableOffset = br.ReadInt32();
@@ -281,7 +342,7 @@ partial class Program
 				br.Close();
 			}
 		}
-		catch (Exception ex) { }
+		catch (Exception e) { MessageBox.Show("Could not load SFO: " + e.Message); }
 	}
 
 	public static bool PatchParamSFO(string paramsfo)
@@ -292,22 +353,26 @@ partial class Program
 		foreach (Param param in paramList)
 		{
 			if (param.name != "ATTRIBUTE") continue;
-			using (FileStream fs = new FileStream(paramsfo, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
+			try
 			{
-				byte[] ATTRIBUTE = new byte[0x04];
-				var offset = param.dataTableOffset + param.dataOffset;
-				fs.Seek(offset, SeekOrigin.Begin);
-				fs.Read(ATTRIBUTE, 0, 0x04); ATTRIBUTE.Reverse();
-				uint AttributeInt = BitConverter.ToUInt32(ATTRIBUTE, 0);
-				if ((AttributeInt & 1024) == 1024)
+				using (FileStream fs = new FileStream(paramsfo, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
 				{
-					ATTRIBUTE = BitConverter.GetBytes(AttributeInt & ~1024); ATTRIBUTE.Reverse();
+					byte[] ATTRIBUTE = new byte[0x04];
+					var offset = param.dataTableOffset + param.dataOffset;
 					fs.Seek(offset, SeekOrigin.Begin);
-					fs.Write(ATTRIBUTE, 0, 0x04);
-					status = true;
+					fs.Read(ATTRIBUTE, 0, 0x04); ATTRIBUTE.Reverse();
+					uint AttributeInt = BitConverter.ToUInt32(ATTRIBUTE, 0);
+					if ((AttributeInt & 1024) == 1024)
+					{
+						ATTRIBUTE = BitConverter.GetBytes(AttributeInt & ~1024); ATTRIBUTE.Reverse();
+						fs.Seek(offset, SeekOrigin.Begin);
+						fs.Write(ATTRIBUTE, 0, 0x04);
+						status = true;
+					}
+					fs.Close();
 				}
-				fs.Close();
 			}
+			catch (Exception e) { MessageBox.Show("Could not patch SFO: " + e.Message); }
 		}
 		return status;
 	}
