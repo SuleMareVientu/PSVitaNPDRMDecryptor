@@ -10,7 +10,7 @@
     <RootNamespace>PSVitaNPDRMDecryptor</RootNamespace>
     <AssemblyName>PSVitaNPDRMDecryptor</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-	<LangVersion>10</LangVersion>
+    <LangVersion>10</LangVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -57,7 +57,7 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>PSV.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\PSV.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -103,6 +103,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\MultipleProgressRow.resx">
@@ -121,7 +122,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="PSV.ico" />
+    <Content Include="Resources\PSV.ico" />
     <None Include="Resources\Arrow-x42.png" />
     <Content Include="Resources\Arrow.png" />
     <None Include="Resources\Cross-x42.png" />
