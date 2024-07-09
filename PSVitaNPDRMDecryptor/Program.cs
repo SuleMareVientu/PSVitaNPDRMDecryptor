@@ -45,14 +45,14 @@ partial class Program
 		if (o.InputFolders.Any()) window.ShowProgress();
 
 		List<string> exported = new List<string>();
-		foreach (string inputDir in o.InputFolders)
+		foreach (string dir in o.InputFolders)
 		{
 			if (window.Canceled) break;
 
 			// Paths
-			string inputDirTrimmed = inputDir.TrimEnd(Path.DirectorySeparatorChar);
+			string inputDirTrimmed = dir.TrimEnd(Path.DirectorySeparatorChar);
 			string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
-			string titleID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo").Remove(0, 7).Remove(9, 20);
+			string titleID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo", true);
 			string dirName = Path.GetFileName(inputDirTrimmed);
 			if (o.UseTitleID) dirName = titleID;
 			string outputDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName);
@@ -80,7 +80,7 @@ partial class Program
 			window.SetDecodingPhase("Decrypting PFS");
 			window.Update(++i / maxProgress);
 
-			DecryptPFS(inputDir, outputDir, GetKLicensee(workbin));
+			DecryptPFS(inputDirTrimmed, outputDir, GetKLicensee(workbin));
 
 			// Check if ELFs should be compressed
 			string compressCommand = "";

@@ -391,13 +391,16 @@ partial class Program
 		return status;
 	}
 
-	public static string GetContentID(string paramsfo)
+	public static string GetContentID(string paramsfo, bool onlyTitleID = false)
 	{
 		LoadSFO(paramsfo);
 		foreach (Param param in paramList)
 		{
 			if (param.name == "CONTENT_ID")
+			{
+				if (onlyTitleID) return param.dataString.Remove(0, 7).Remove(9);
 				return param.dataString;
+			}	
 		}
 		return "";
 	}
