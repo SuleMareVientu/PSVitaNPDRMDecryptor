@@ -2,7 +2,7 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{DB459B2F-C6AC-46C6-8CEE-653090772F0D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -10,6 +10,7 @@
     <RootNamespace>PSVitaNPDRMDecryptor</RootNamespace>
     <AssemblyName>PSVitaNPDRMDecryptor</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+	<LangVersion>10</LangVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -73,25 +74,25 @@
     <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BetterFolderBrowser.cs">
+    <Compile Include="External\BetterFolderBrowser.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MultipleProgressRow.cs">
+    <Compile Include="Forms\MultipleProgressRow.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="MultipleProgressRow.Designer.cs">
+    <Compile Include="Forms\MultipleProgressRow.Designer.cs">
       <DependentUpon>MultipleProgressRow.cs</DependentUpon>
     </Compile>
-    <Compile Include="MultipleProgressWindow.cs">
+    <Compile Include="Forms\MultipleProgressWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MultipleProgressWindow.Designer.cs">
+    <Compile Include="Forms\MultipleProgressWindow.Designer.cs">
       <DependentUpon>MultipleProgressWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="OptionsForm.cs">
+    <Compile Include="Forms\OptionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OptionsForm.Designer.cs">
+    <Compile Include="Forms\OptionsForm.Designer.cs">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Options.cs" />
@@ -104,13 +105,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="MultipleProgressRow.resx">
+    <EmbeddedResource Include="Forms\MultipleProgressRow.resx">
       <DependentUpon>MultipleProgressRow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="OptionsForm.resx">
+    <EmbeddedResource Include="Forms\OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MultipleProgressWindow.resx">
+    <EmbeddedResource Include="Forms\MultipleProgressWindow.resx">
       <DependentUpon>MultipleProgressWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -127,13 +128,6 @@
     <Content Include="Resources\Cross.png" />
     <None Include="Resources\Plus-x42.png" />
     <Content Include="Resources\Plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
