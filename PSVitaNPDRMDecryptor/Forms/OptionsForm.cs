@@ -30,8 +30,9 @@ public partial class OptionsForm : Form
 		Program.form.listBox1.Enabled = state;
 		Program.form.txtOutputDir.Enabled = state;
 		Program.form.chkCompressELFs.Enabled = state;
-		Program.form.chkAddSuffix.Enabled = state;
 		Program.form.chkVPK.Enabled = state;
+		Program.form.chkUseTitleID.Enabled = state;
+		Program.form.chkAddSuffix.Enabled = state;
 		return;
 	}
 

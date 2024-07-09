@@ -49,12 +49,31 @@ partial class Program
 		{
 			if (window.Canceled) break;
 
+			#region app
+
 			// Paths
+			bool isApp = true;
 			string inputDirTrimmed = dir.TrimEnd(Path.DirectorySeparatorChar);
 			string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
 			string titleID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo", true);
+			string category = GetCategory(inputDirTrimmed + "\\sce_sys\\param.sfo");
 			string dirName = Path.GetFileName(inputDirTrimmed);
-			if (o.UseTitleID) dirName = titleID;
+			if (o.UseTitleID)
+			{
+				dirName = titleID;
+				if (category.ToLower() == "gp")
+				{
+					dirName += "_patch";
+					isApp = false;
+				}
+
+				if (category.ToLower() == "ac")
+				{
+					string LicenseID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo").Remove(0, 20);
+					dirName = dirName + "_addcont" + "\\" + LicenseID;
+					isApp = false;
+				}	
+			}
 			string outputDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName);
 			if (o.AddSuffix) outputDir += "_dec";	//Check if suffix is needed
 			string paramsfo = outputDir + "\\sce_sys\\param.sfo";
@@ -118,6 +137,145 @@ partial class Program
 
 			DeleteFile(clearsign);
 			DeleteFile(keystone);
+			if (!isApp) continue;
+
+			#endregion
+
+			#region patch
+
+			// Patch Paths
+			string patchDir = Directory.GetParent(inputDirTrimmed).ToString().TrimEnd(Path.DirectorySeparatorChar) + "\\patch\\" + titleID;
+			string outputPatchDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\patch\\" + titleID);
+			if (o.AddSuffix) outputPatchDir += "_dec";   //Check if suffix is needed
+			string patchParamsfo = outputPatchDir + "\\sce_sys\\param.sfo";
+			string patchLivearea = outputPatchDir + "\\sce_sys\\livearea";
+			string patchRetail = outputPatchDir + "\\sce_sys\\retail";
+			string patchRetailLivearea = outputPatchDir + "\\sce_sys\\retail\\livearea";
+			string patchClearsign = outputPatchDir + "\\sce_sys\\clearsign";
+			string patchKeystone = outputPatchDir + "\\sce_sys\\keystone";
+			if (Directory.Exists(patchDir))
+			{
+				if (!Directory.Exists(outputPatchDir))
+				{
+					try { Directory.CreateDirectory(outputPatchDir); }
+					catch (Exception e) { MessageBox.Show("Could not create output directory " + outputPatchDir + ": " + e.Message); }
+				}
+				else
+				{
+					DeleteDirectory(outputPatchDir, true);
+					try { Directory.CreateDirectory(outputPatchDir); }
+					catch (Exception e) { MessageBox.Show("Could not create output directory " + outputPatchDir + ": " + e.Message); }
+				}
+
+				window.SetDecodingText(titleID + "_patch");
+				window.SetDecodingPhase("Decrypting PFS");
+
+				DecryptPFS(patchDir, outputPatchDir, GetKLicensee(workbin));
+
+				files = Directory.GetFiles(outputPatchDir, "*", SearchOption.AllDirectories);
+				foreach (string SELF in files)
+				{
+					if (!IsSELF(SELF))
+						continue;
+
+					window.SetDecodingPhase("Decrypting " + Path.GetFileName(SELF));
+					string tmpELF = SELF + ".elf";
+					UnSELF(SELF, tmpELF, workbin);
+
+					ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
+					DeleteFile(SELF);   //Delete old eboot
+
+					MakeFSELF(tmpELF, SELF, compressCommand);
+					DeleteFile(tmpELF);
+
+					WriteSELFHeader(SELF, PIH, NPDRM, bootParams);
+				}
+
+				window.SetDecodingPhase("Patching param.sfo");
+				PatchParamSFO(patchParamsfo);
+
+				// Use retail livearea for game demos
+				if (Directory.Exists(patchRetailLivearea))
+				{
+					DeleteDirectory(patchLivearea, true);
+					Directory.Move(patchRetailLivearea, patchLivearea);
+					DeleteDirectory(patchRetail, true);
+				}
+
+				DeleteFile(patchClearsign);
+				DeleteFile(patchKeystone);
+			}
+
+			#endregion
+
+			#region addcont
+
+			// Addcont Paths
+			string addcontBaseDir = Directory.GetParent(inputDirTrimmed).ToString().TrimEnd(Path.DirectorySeparatorChar) + "\\addcont\\" + titleID;
+			string outputAddcontBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\addcont\\" + titleID);
+			if (o.AddSuffix) outputAddcontBaseDir += "_dec";   //Check if suffix is needed
+
+			string[] dirs = null;
+			if (Directory.Exists(addcontBaseDir))
+				dirs = Directory.GetDirectories(addcontBaseDir, "*", SearchOption.TopDirectoryOnly);
+
+			if (dirs != null && dirs.Length > 0)
+			{
+				foreach (string directory in dirs)
+				{
+					string addcontName = Path.GetFileName(directory.TrimEnd(Path.DirectorySeparatorChar));
+					string addcontDir = addcontBaseDir + "\\" + addcontName;
+					string addcontWorkbin = addcontDir + "\\sce_sys\\package\\work.bin";
+					string outputAddcontDir = outputAddcontBaseDir + "\\" + addcontName;
+					string addcontParamsfo = outputAddcontDir + "\\sce_sys\\param.sfo";
+					string addcontClearsign = outputAddcontDir + "\\sce_sys\\clearsign";
+					string addcontKeystone = outputAddcontDir + "\\sce_sys\\keystone";
+
+					if (!Directory.Exists(outputAddcontDir))
+					{
+						try { Directory.CreateDirectory(outputAddcontDir); }
+						catch (Exception e) { MessageBox.Show("Could not create output directory " + outputAddcontDir + ": " + e.Message); }
+					}
+					else
+					{
+						DeleteDirectory(outputAddcontDir, true);
+						try { Directory.CreateDirectory(outputAddcontDir); }
+						catch (Exception e) { MessageBox.Show("Could not create output directory " + outputAddcontDir + ": " + e.Message); }
+					}
+
+					window.SetDecodingText(titleID + "_addcont");
+					window.SetDecodingPhase("Decrypting PFS");
+
+					DecryptPFS(addcontDir, outputAddcontDir, GetKLicensee(addcontWorkbin));
+
+					files = Directory.GetFiles(outputAddcontDir, "*", SearchOption.AllDirectories);
+					foreach (string SELF in files)
+					{
+						if (!IsSELF(SELF))
+							continue;
+
+						window.SetDecodingPhase("Decrypting " + Path.GetFileName(SELF));
+						string tmpELF = SELF + ".elf";
+						UnSELF(SELF, tmpELF, addcontWorkbin);
+
+						ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
+						DeleteFile(SELF);   //Delete old eboot
+
+						MakeFSELF(tmpELF, SELF, compressCommand);
+						DeleteFile(tmpELF);
+
+						WriteSELFHeader(SELF, PIH, NPDRM, bootParams);
+					}
+
+					window.SetDecodingPhase("Patching param.sfo");
+					PatchParamSFO(addcontParamsfo);
+
+					DeleteFile(addcontClearsign);
+					DeleteFile(addcontKeystone);
+				}
+			}
+
+			#endregion
 
 			if (o.MakeVPK)
 			{
