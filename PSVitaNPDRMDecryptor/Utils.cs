@@ -77,6 +77,9 @@ partial class Program
 			return;
 		}
 
+		inputDir = inputDir.TrimEnd(Path.DirectorySeparatorChar);
+		outputDir = outputDir.TrimEnd(Path.DirectorySeparatorChar);
+
 		// Decrypt NPDRM contents
 		ProcessStartInfo psi = new ProcessStartInfo
 		{
@@ -98,6 +101,9 @@ partial class Program
 			Application.Exit();
 			return;
 		}
+
+		SELF = SELF.TrimEnd(Path.DirectorySeparatorChar);
+		ELF = ELF.TrimEnd(Path.DirectorySeparatorChar);
 
 		// Encrypted NPDRM SELF -> ELF
 		ProcessStartInfo psi = new ProcessStartInfo
@@ -121,6 +127,9 @@ partial class Program
 			return;
 		}
 
+		ELF = ELF.TrimEnd(Path.DirectorySeparatorChar);
+		SELF = SELF.TrimEnd(Path.DirectorySeparatorChar);
+
 		// ELF -> fSELF
 		ProcessStartInfo psi = new ProcessStartInfo
 		{
@@ -135,7 +144,8 @@ partial class Program
 
 	public static bool IsSELF(string SELF)
 	{
-		if (Path.GetFileName(SELF.TrimEnd(Path.DirectorySeparatorChar)) == "right.suprx")
+		SELF = SELF.TrimEnd(Path.DirectorySeparatorChar);
+		if (Path.GetFileName(SELF) == "right.suprx")
 			return false;
 
 		const int magic = 0x00454353;   // 53 43 45 00
@@ -158,6 +168,7 @@ partial class Program
 	public static string GetKLicensee(string workbin)
 	{
 		string klic = "";
+		workbin = workbin.TrimEnd(Path.DirectorySeparatorChar);
 		try
 		{
 			using (BinaryReader br = new BinaryReader(File.OpenRead(workbin)))
@@ -181,6 +192,7 @@ partial class Program
 		PIH = new byte[0x20];
 		NPDRM = new byte[0x110];
 		bootParams = new byte[0x110];
+		SELF = SELF.TrimEnd(Path.DirectorySeparatorChar);
 
 		// Read SELF
 		const int maxSELFRead = 0x2710;
@@ -223,6 +235,7 @@ partial class Program
 		// Read SELF
 		const int maxSELFRead = 0x2710;
 		byte[] SELFarr = new byte[maxSELFRead];
+		SELF = SELF.TrimEnd(Path.DirectorySeparatorChar);
 
 		try
 		{
@@ -296,8 +309,8 @@ partial class Program
 
 	public static void LoadSFO(string sfoFile)
 	{
-		if (!File.Exists(sfoFile))
-			return;
+		sfoFile = sfoFile.TrimEnd(Path.DirectorySeparatorChar);
+		if (!File.Exists(sfoFile)) return;
 		try
 		{
 			using (BinaryReader br = new BinaryReader(File.OpenRead(sfoFile)))
@@ -347,8 +360,9 @@ partial class Program
 
 	public static bool PatchParamSFO(string paramsfo)
 	{
-		bool status = false;
 		// Clear "Application is upgradable" bit in param.sfo "ATTRIBUTE"
+		bool status = false;
+		paramsfo = paramsfo.TrimEnd(Path.DirectorySeparatorChar);
 		LoadSFO(paramsfo);
 		foreach (Param param in paramList)
 		{

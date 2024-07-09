@@ -72,7 +72,8 @@ partial class Program
 			else
 			{
 				DeleteDirectory(outputDir, true);
-				Directory.CreateDirectory(outputDir);
+				try { Directory.CreateDirectory(outputDir); }
+				catch (Exception e) { MessageBox.Show("Could not create output directory " + o.OutputDir + ": " + e.Message); }
 			}
 
 			window.SetDecodingText(titleID);
@@ -88,7 +89,7 @@ partial class Program
 			string[] files = Directory.GetFiles(outputDir, "*", SearchOption.AllDirectories);
 			foreach (string SELF in files)
 			{
-				if (!IsSELF(SELF.TrimEnd(Path.DirectorySeparatorChar)))
+				if (!IsSELF(SELF))
 					continue;
 
 				window.SetDecodingPhase("Decrypting " + Path.GetFileName(SELF));
