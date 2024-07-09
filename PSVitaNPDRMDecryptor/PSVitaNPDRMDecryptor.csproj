@@ -127,6 +127,12 @@
     <None Include="Resources\Plus-x42.png" />
     <Content Include="Resources\Plus.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ContentWithTargetPath Include="External\bin\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>%(RecursiveDir)\bin\%(Filename)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
