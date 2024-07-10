@@ -30,7 +30,9 @@ public partial class OptionsForm : Form
 		Program.form.listBox1.Enabled = state;
 		Program.form.txtOutputDir.Enabled = state;
 		Program.form.chkCompressELFs.Enabled = state;
+		Program.form.chkMergePatch.Enabled = state;
 		Program.form.chkVPK.Enabled = state;
+		Program.form.chkLookForAddcont.Enabled = state;
 		Program.form.chkUseTitleID.Enabled = state;
 		Program.form.chkAddSuffix.Enabled = state;
 		return;
@@ -67,9 +69,11 @@ public partial class OptionsForm : Form
 			InputFolders = filenames,
 			OutputDir = txtOutputDir.Text,
 			CompressELFs = chkCompressELFs.Checked,
+			MergePatch = chkMergePatch.Checked,
 			MakeVPK = chkVPK.Checked,
+			LookForAddcont = chkLookForAddcont.Checked,
 			UseTitleID = chkUseTitleID.Checked,
-			AddSuffix = chkAddSuffix.Checked,
+			AddSuffix = chkAddSuffix.Checked
 		};
 	}
 

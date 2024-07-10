@@ -41,12 +41,14 @@
 			this.btnAdd = new System.Windows.Forms.Button();
 			this.btnRemove = new System.Windows.Forms.Button();
 			this.btnOkay = new System.Windows.Forms.Button();
-			this.chkAddSuffix = new System.Windows.Forms.CheckBox();
 			this.toolTipAdd = new System.Windows.Forms.ToolTip(this.components);
 			this.toolTipRemove = new System.Windows.Forms.ToolTip(this.components);
 			this.toolTipStart = new System.Windows.Forms.ToolTip(this.components);
 			this.chkVPK = new System.Windows.Forms.CheckBox();
 			this.chkUseTitleID = new System.Windows.Forms.CheckBox();
+			this.chkMergePatch = new System.Windows.Forms.CheckBox();
+			this.chkAddSuffix = new System.Windows.Forms.CheckBox();
+			this.chkLookForAddcont = new System.Windows.Forms.CheckBox();
 			this.flowLayoutPanel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -183,16 +185,6 @@
 			this.btnOkay.UseVisualStyleBackColor = true;
 			this.btnOkay.Click += new System.EventHandler(this.btnOkay_Click);
 			// 
-			// chkAddSuffix
-			// 
-			this.chkAddSuffix.AutoSize = true;
-			this.chkAddSuffix.Location = new System.Drawing.Point(7, 209);
-			this.chkAddSuffix.Name = "chkAddSuffix";
-			this.chkAddSuffix.Size = new System.Drawing.Size(109, 17);
-			this.chkAddSuffix.TabIndex = 7;
-			this.chkAddSuffix.Text = "Add \"_dec\" suffix";
-			this.chkAddSuffix.UseVisualStyleBackColor = false;
-			// 
 			// toolTipAdd
 			// 
 			this.toolTipAdd.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTip1_Popup);
@@ -200,7 +192,7 @@
 			// chkVPK
 			// 
 			this.chkVPK.AutoSize = true;
-			this.chkVPK.Location = new System.Drawing.Point(110, 186);
+			this.chkVPK.Location = new System.Drawing.Point(313, 206);
 			this.chkVPK.Name = "chkVPK";
 			this.chkVPK.Size = new System.Drawing.Size(77, 17);
 			this.chkVPK.TabIndex = 8;
@@ -212,12 +204,46 @@
 			this.chkUseTitleID.AutoSize = true;
 			this.chkUseTitleID.Checked = true;
 			this.chkUseTitleID.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.chkUseTitleID.Location = new System.Drawing.Point(193, 186);
+			this.chkUseTitleID.Location = new System.Drawing.Point(117, 186);
 			this.chkUseTitleID.Name = "chkUseTitleID";
 			this.chkUseTitleID.Size = new System.Drawing.Size(155, 17);
 			this.chkUseTitleID.TabIndex = 9;
 			this.chkUseTitleID.Text = "Use TitleID as output name";
 			this.chkUseTitleID.UseVisualStyleBackColor = false;
+			// 
+			// chkMergePatch
+			// 
+			this.chkMergePatch.AutoSize = true;
+			this.chkMergePatch.Checked = true;
+			this.chkMergePatch.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.chkMergePatch.Location = new System.Drawing.Point(163, 206);
+			this.chkMergePatch.Name = "chkMergePatch";
+			this.chkMergePatch.Size = new System.Drawing.Size(138, 17);
+			this.chkMergePatch.TabIndex = 10;
+			this.chkMergePatch.Text = "Merge patch (if present)";
+			this.chkMergePatch.UseVisualStyleBackColor = false;
+			// 
+			// chkAddSuffix
+			// 
+			this.chkAddSuffix.AutoSize = true;
+			this.chkAddSuffix.Location = new System.Drawing.Point(281, 186);
+			this.chkAddSuffix.Name = "chkAddSuffix";
+			this.chkAddSuffix.Size = new System.Drawing.Size(109, 17);
+			this.chkAddSuffix.TabIndex = 7;
+			this.chkAddSuffix.Text = "Add \"_dec\" suffix";
+			this.chkAddSuffix.UseVisualStyleBackColor = false;
+			// 
+			// chkLookForAddcont
+			// 
+			this.chkLookForAddcont.AutoSize = true;
+			this.chkLookForAddcont.Checked = true;
+			this.chkLookForAddcont.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.chkLookForAddcont.Location = new System.Drawing.Point(7, 206);
+			this.chkLookForAddcont.Name = "chkLookForAddcont";
+			this.chkLookForAddcont.Size = new System.Drawing.Size(150, 17);
+			this.chkLookForAddcont.TabIndex = 11;
+			this.chkLookForAddcont.Text = "Look for patches/addcont";
+			this.chkLookForAddcont.UseVisualStyleBackColor = false;
 			// 
 			// OptionsForm
 			// 
@@ -225,6 +251,8 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(451, 231);
+			this.Controls.Add(this.chkLookForAddcont);
+			this.Controls.Add(this.chkMergePatch);
 			this.Controls.Add(this.chkUseTitleID);
 			this.Controls.Add(this.chkVPK);
 			this.Controls.Add(this.chkAddSuffix);
@@ -258,11 +286,13 @@
 		private System.Windows.Forms.Label lblEnumerationStatus;
 		private System.Windows.Forms.CheckBox chkCompressELFs;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.CheckBox chkAddSuffix;
         private System.Windows.Forms.ToolTip toolTipAdd;
         private System.Windows.Forms.ToolTip toolTipRemove;
         private System.Windows.Forms.ToolTip toolTipStart;
         private System.Windows.Forms.CheckBox chkVPK;
         private System.Windows.Forms.CheckBox chkUseTitleID;
-    }
+		private System.Windows.Forms.CheckBox chkMergePatch;
+		private System.Windows.Forms.CheckBox chkAddSuffix;
+		private System.Windows.Forms.CheckBox chkLookForAddcont;
+	}
 }

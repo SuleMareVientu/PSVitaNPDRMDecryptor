@@ -74,7 +74,8 @@ partial class Program
 					isApp = false;
 				}	
 			}
-			string outputDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\" + dirName);
+			string outputBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar));
+			string outputDir = outputBaseDir + "\\" + dirName;
 			if (o.AddSuffix) outputDir += "_dec";	//Check if suffix is needed
 			string paramsfo = outputDir + "\\sce_sys\\param.sfo";
 			string livearea = outputDir + "\\sce_sys\\livearea";
@@ -137,15 +138,18 @@ partial class Program
 
 			DeleteFile(clearsign);
 			DeleteFile(keystone);
-			if (!isApp) continue;
+			if (!isApp || !o.LookForAddcont) continue;
 
 			#endregion
 
 			#region patch
 
+			if (window.Canceled) break;
+
 			// Patch Paths
 			string patchDir = Directory.GetParent(inputDirTrimmed).ToString().TrimEnd(Path.DirectorySeparatorChar) + "\\patch\\" + titleID;
-			string outputPatchDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\patch\\" + titleID);
+			string outputPatchBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\patch");
+			string outputPatchDir = outputPatchBaseDir + "\\" + titleID;
 			if (o.AddSuffix) outputPatchDir += "_dec";   //Check if suffix is needed
 			string patchParamsfo = outputPatchDir + "\\sce_sys\\param.sfo";
 			string patchLivearea = outputPatchDir + "\\sce_sys\\livearea";
@@ -204,11 +208,31 @@ partial class Program
 
 				DeleteFile(patchClearsign);
 				DeleteFile(patchKeystone);
+
+				if (o.MergePatch)
+				{
+					string tmp = outputBaseDir + "\\" + titleID;
+					if (outputDir == tmp)
+						MoveDirectory(outputPatchDir, outputDir);
+					else
+					{
+						try
+						{
+							Directory.Move(outputDir, tmp);
+							MoveDirectory(outputPatchDir, tmp);
+							Directory.Move(tmp, outputDir);
+						}
+						catch (Exception e) { MessageBox.Show("Could not merge patch: " + e.Message); }
+					}
+					if (IsDirectoryEmpty(outputPatchBaseDir)) DeleteDirectory(outputPatchBaseDir);
+				}
 			}
 
 			#endregion
 
 			#region addcont
+
+			if (window.Canceled) break;
 
 			// Addcont Paths
 			string addcontBaseDir = Directory.GetParent(inputDirTrimmed).ToString().TrimEnd(Path.DirectorySeparatorChar) + "\\addcont\\" + titleID;

@@ -55,19 +55,41 @@ partial class Program
 	{
 		var sourcePath = source.TrimEnd('\\', ' ');
 		var targetPath = target.TrimEnd('\\', ' ');
-		var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).GroupBy(s => Path.GetDirectoryName(s));
-		foreach (var folder in files)
+		try
 		{
-			var targetFolder = folder.Key.Replace(sourcePath, targetPath);
-			Directory.CreateDirectory(targetFolder);
-			foreach (var file in folder)
+			var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).GroupBy(s => Path.GetDirectoryName(s));
+			foreach (var folder in files)
 			{
-				var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
-				if (File.Exists(targetFile)) File.Delete(targetFile);
-				File.Move(file, targetFile);
+				var targetFolder = folder.Key.Replace(sourcePath, targetPath);
+				Directory.CreateDirectory(targetFolder);
+				foreach (var file in folder)
+				{
+					var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
+					if (File.Exists(targetFile)) File.Delete(targetFile);
+					File.Move(file, targetFile);
+				}
 			}
+			Directory.Delete(source, true);
 		}
-		Directory.Delete(source, true);
+		catch (Exception e) { MessageBox.Show("Could not move directory \"" + sourcePath + "\": " + e.Message); }
+		return;
+	}
+
+	public static bool IsDirectoryEmpty(string dir)
+	{
+		var dirPath = dir.TrimEnd('\\', ' ');
+		if (!Directory.Exists(dirPath)) return false;
+		string[] files = null;
+		string[] dirs = null;
+		try
+		{
+			files = Directory.GetFiles(dirPath, "*", SearchOption.TopDirectoryOnly);
+			dirs = Directory.GetDirectories(dirPath, "*", SearchOption.TopDirectoryOnly);
+			if ((files != null || dirs != null) && (files.Length > 0 || dirs.Length > 0))
+				return false;
+		}
+		catch (Exception) { }
+		return true;
 	}
 
 	/*
