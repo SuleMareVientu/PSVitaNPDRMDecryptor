@@ -86,3 +86,4 @@ For now app installation must be done through VitaShell because we need to gener
 - [motoharu-gosuto - psvpfstools](https://github.com/motoharu-gosuto/psvpfstools)
 - [LoopingAudioConverter - GUI base](https://github.com/libertyernie/LoopingAudioConverter)
 - [BetterFolderBrowser - Folder Select Dialog](https://github.com/Willy-Kimura/BetterFolderBrowser)
+- ​[botik - Guidance & Help](https://gbatemp.net/members/botik.433115/)
