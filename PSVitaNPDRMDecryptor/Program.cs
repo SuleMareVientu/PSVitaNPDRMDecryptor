@@ -56,18 +56,18 @@ partial class Program
 			string inputDirTrimmed = dir.TrimEnd(Path.DirectorySeparatorChar);
 			string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
 			string titleID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo", true);
-			string category = GetCategory(inputDirTrimmed + "\\sce_sys\\param.sfo");
+			string category = GetCategory(inputDirTrimmed + "\\sce_sys\\param.sfo").ToLower();
 			string dirName = Path.GetFileName(inputDirTrimmed);
 			if (o.UseTitleID)
 			{
 				dirName = titleID;
-				if (category.ToLower() == "gp")
+				if (category == "gp" || category == "gpc" || category == "gpd")
 				{
 					dirName += "_patch";
 					isApp = false;
 				}
 
-				if (category.ToLower() == "ac")
+				if (category == "ac")
 				{
 					string LicenseID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo").Remove(0, 20);
 					dirName = dirName + "_addcont" + "\\" + LicenseID;
