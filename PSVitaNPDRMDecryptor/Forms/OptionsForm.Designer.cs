@@ -262,8 +262,6 @@
 			// chkCopyHeadBin
 			// 
 			this.chkCopyHeadBin.AutoSize = true;
-			this.chkCopyHeadBin.Checked = true;
-			this.chkCopyHeadBin.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.chkCopyHeadBin.Location = new System.Drawing.Point(163, 229);
 			this.chkCopyHeadBin.Name = "chkCopyHeadBin";
 			this.chkCopyHeadBin.Size = new System.Drawing.Size(104, 17);

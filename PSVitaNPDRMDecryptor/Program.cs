@@ -54,7 +54,7 @@ partial class Program
 
 			#region app
 
-				// Paths
+			// Paths
 			bool isApp = true;
 			string inputDirTrimmed = dir.TrimEnd(Path.DirectorySeparatorChar);
 			string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
