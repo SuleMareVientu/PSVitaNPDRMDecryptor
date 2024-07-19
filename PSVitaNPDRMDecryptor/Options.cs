@@ -11,4 +11,7 @@ public class Options
 	public bool LookForAddcont { get; set; }
 	public bool UseTitleID { get; set; }
 	public bool AddSuffix { get; set; }
+	public bool UseRePatch { get; set; }
+	public bool CopyHeadBin { get; set; }
+	public bool ShowCMD { get; set; }
 }

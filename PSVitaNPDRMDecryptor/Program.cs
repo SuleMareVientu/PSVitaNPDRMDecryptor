@@ -49,12 +49,16 @@ partial class Program
 		{
 			if (window.Canceled) break;
 
+			if (o.ShowCMD) hideCMD = false;
+			else hideCMD = true;
+
 			#region app
 
-			// Paths
+				// Paths
 			bool isApp = true;
 			string inputDirTrimmed = dir.TrimEnd(Path.DirectorySeparatorChar);
 			string workbin = inputDirTrimmed + "\\sce_sys\\package\\work.bin";
+			string headbin = inputDirTrimmed + "\\sce_sys\\package\\head.bin";
 			string titleID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo", true);
 			string category = GetCategory(inputDirTrimmed + "\\sce_sys\\param.sfo").ToLower();
 			string dirName = Path.GetFileName(inputDirTrimmed);
@@ -76,7 +80,9 @@ partial class Program
 			}
 			string outputBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar));
 			string outputDir = outputBaseDir + "\\" + dirName;
-			if (o.AddSuffix) outputDir += "_dec";	//Check if suffix is needed
+			if (o.AddSuffix) outputDir += "_dec";   //Check if suffix is needed
+			string outputHeadbinDir = outputDir + "\\sce_sys\\package";
+			string outputHeadbin = outputDir + "\\sce_sys\\package\\head.bin";
 			string paramsfo = outputDir + "\\sce_sys\\param.sfo";
 			string livearea = outputDir + "\\sce_sys\\livearea";
 			string retail = outputDir + "\\sce_sys\\retail";
@@ -136,8 +142,21 @@ partial class Program
 				DeleteDirectory(retail, true);
 			}
 
+			// Copy original head.bin if needed
+			if (o.CopyHeadBin && File.Exists(headbin))
+			{
+				if (!Directory.Exists(outputHeadbinDir))
+				{
+					try { Directory.CreateDirectory(outputHeadbinDir); }
+					catch (Exception e) { MessageBox.Show("Could not create \"head.bin\" output directory " + outputHeadbinDir + ": " + e.Message); }
+				}
+				try { File.Copy(headbin, outputHeadbin); }
+				catch (Exception e) { MessageBox.Show("Could not copy \"head.bin\" to " + outputHeadbin + ": " + e.Message); }
+			}
+
 			DeleteFile(clearsign);
 			DeleteFile(keystone);
+
 			if (!isApp || !o.LookForAddcont) continue;
 
 			#endregion
@@ -148,7 +167,9 @@ partial class Program
 
 			// Patch Paths
 			string patchDir = Directory.GetParent(inputDirTrimmed).ToString().TrimEnd(Path.DirectorySeparatorChar) + "\\patch\\" + titleID;
-			string outputPatchBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\patch");
+			string outputPatchBaseDirSuffix = "\\patch";
+			if (o.UseRePatch) outputPatchBaseDirSuffix = "\\rePatch";	//Use rePatch naming scheme 
+			string outputPatchBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + outputPatchBaseDirSuffix);
 			string outputPatchDir = outputPatchBaseDir + "\\" + titleID;
 			if (o.AddSuffix) outputPatchDir += "_dec";   //Check if suffix is needed
 			string patchParamsfo = outputPatchDir + "\\sce_sys\\param.sfo";
@@ -236,7 +257,9 @@ partial class Program
 
 			// Addcont Paths
 			string addcontBaseDir = Directory.GetParent(inputDirTrimmed).ToString().TrimEnd(Path.DirectorySeparatorChar) + "\\addcont\\" + titleID;
-			string outputAddcontBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + "\\addcont\\" + titleID);
+			string outputAddcontBaseDirSuffix = "\\addcont\\";
+			if (o.UseRePatch) outputAddcontBaseDirSuffix = "\\reAddcont\\";   //Use rePatch naming scheme 
+			string outputAddcontBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + outputAddcontBaseDirSuffix + titleID);
 			if (o.AddSuffix) outputAddcontBaseDir += "_dec";   //Check if suffix is needed
 
 			string[] dirs = null;

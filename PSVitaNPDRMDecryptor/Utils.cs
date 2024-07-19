@@ -11,6 +11,8 @@ namespace PSVitaNPDRMDecryptor;
 
 partial class Program
 {
+	public static bool hideCMD = false;
+
 	public static string ByteArrayToString(byte[] ba)
 	{
 		return BitConverter.ToString(ba).Replace("-", "");
@@ -99,7 +101,7 @@ partial class Program
         {
             FileName = "cmd.exe",
             UseShellExecute = false,
-            CreateNoWindow = true,
+            CreateNoWindow = hideCMD,
             Arguments = "/C robocopy \"" + source + "\" \"" + target + "\" /MOVE /E /R:100 /W:3"   // /COPYALL /DCOPY:DAT
             //Arguments = "/C SET COPYCMD=/Y && move \"" + source + "\" \"" + target + "\""
         };
@@ -126,7 +128,7 @@ partial class Program
 		{
 			FileName = psvpfsparser,
 			UseShellExecute = false,
-			CreateNoWindow = true,
+			CreateNoWindow = hideCMD,
 			Arguments = "-k " + klic + " -i \"" + inputDir + "\" -o \"" + outputDir + "\""
 		};
 		Process p = Process.Start(psi);
@@ -151,7 +153,7 @@ partial class Program
 		{
 			FileName = self2elf,
 			UseShellExecute = false,
-			CreateNoWindow = true,
+			CreateNoWindow = hideCMD,
 			Arguments = "-i \"" + SELF + "\" -o \"" + ELF + "\" -k \"" + workbin + "\""
 		};
 		Process p = Process.Start(psi);
@@ -176,7 +178,7 @@ partial class Program
 		{
 			FileName = vdsuitepubprx,
 			UseShellExecute = false,
-			CreateNoWindow = true,
+			CreateNoWindow = hideCMD,
 			Arguments = "\"" + ELF + "\" \"" + SELF + "\"" + commands
 		};
 		Process p = Process.Start(psi);

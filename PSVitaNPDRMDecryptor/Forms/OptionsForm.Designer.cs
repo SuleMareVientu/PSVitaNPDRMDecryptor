@@ -49,6 +49,18 @@
 			this.chkMergePatch = new System.Windows.Forms.CheckBox();
 			this.chkAddSuffix = new System.Windows.Forms.CheckBox();
 			this.chkLookForAddcont = new System.Windows.Forms.CheckBox();
+			this.chkUseRePatch = new System.Windows.Forms.CheckBox();
+			this.chkCopyHeadBin = new System.Windows.Forms.CheckBox();
+			this.chkShowCMD = new System.Windows.Forms.CheckBox();
+			this.toolTipCompressELFs = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipUseTitleID = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipAddSuffix = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipLookForAddcont = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipMergePatch = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipVPK = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipUseRePatch = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipCopyHeadBin = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipShowCMD = new System.Windows.Forms.ToolTip(this.components);
 			this.flowLayoutPanel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -67,7 +79,7 @@
 			// btnBrowse
 			// 
 			this.btnBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnBrowse.Location = new System.Drawing.Point(360, 157);
+			this.btnBrowse.Location = new System.Drawing.Point(400, 157);
 			this.btnBrowse.Name = "btnBrowse";
 			this.btnBrowse.Size = new System.Drawing.Size(32, 20);
 			this.btnBrowse.TabIndex = 6;
@@ -92,7 +104,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtOutputDir.Location = new System.Drawing.Point(91, 157);
 			this.txtOutputDir.Name = "txtOutputDir";
-			this.txtOutputDir.Size = new System.Drawing.Size(263, 20);
+			this.txtOutputDir.Size = new System.Drawing.Size(303, 20);
 			this.txtOutputDir.TabIndex = 5;
 			this.txtOutputDir.Text = "./output";
 			// 
@@ -116,7 +128,7 @@
 			this.listBox1.Location = new System.Drawing.Point(0, 0);
 			this.listBox1.Name = "listBox1";
 			this.listBox1.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-			this.listBox1.Size = new System.Drawing.Size(392, 150);
+			this.listBox1.Size = new System.Drawing.Size(432, 150);
 			this.listBox1.TabIndex = 0;
 			this.listBox1.DragDrop += new System.Windows.Forms.DragEventHandler(this.listBox1_DragDrop);
 			this.listBox1.DragEnter += new System.Windows.Forms.DragEventHandler(this.listBox1_DragEnter);
@@ -132,8 +144,7 @@
 			// 
 			// flowLayoutPanel1
 			// 
-			this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.flowLayoutPanel1.AutoSize = true;
 			this.flowLayoutPanel1.Controls.Add(this.btnAdd);
 			this.flowLayoutPanel1.Controls.Add(this.btnRemove);
@@ -141,11 +152,10 @@
 			this.flowLayoutPanel1.Controls.Add(this.lblEnumerationStatus);
 			this.flowLayoutPanel1.Controls.Add(this.btnOkay);
 			this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.flowLayoutPanel1.Location = new System.Drawing.Point(393, 0);
+			this.flowLayoutPanel1.Location = new System.Drawing.Point(433, 0);
 			this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-			this.flowLayoutPanel1.Size = new System.Drawing.Size(56, 226);
+			this.flowLayoutPanel1.Size = new System.Drawing.Size(56, 246);
 			this.flowLayoutPanel1.TabIndex = 0;
-			this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
 			// 
 			// btnAdd
 			// 
@@ -177,22 +187,18 @@
 			this.btnOkay.BackgroundImage = global::PSVitaNPDRMDecryptor.Properties.Resources.Arrow_x42;
 			this.btnOkay.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
 			this.btnOkay.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.btnOkay.Location = new System.Drawing.Point(3, 173);
-			this.btnOkay.Margin = new System.Windows.Forms.Padding(3, 19, 3, 3);
+			this.btnOkay.Location = new System.Drawing.Point(3, 193);
+			this.btnOkay.Margin = new System.Windows.Forms.Padding(3, 39, 3, 3);
 			this.btnOkay.Name = "btnOkay";
 			this.btnOkay.Size = new System.Drawing.Size(50, 50);
 			this.btnOkay.TabIndex = 3;
 			this.btnOkay.UseVisualStyleBackColor = true;
 			this.btnOkay.Click += new System.EventHandler(this.btnOkay_Click);
 			// 
-			// toolTipAdd
-			// 
-			this.toolTipAdd.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTip1_Popup);
-			// 
 			// chkVPK
 			// 
 			this.chkVPK.AutoSize = true;
-			this.chkVPK.Location = new System.Drawing.Point(313, 206);
+			this.chkVPK.Location = new System.Drawing.Point(324, 206);
 			this.chkVPK.Name = "chkVPK";
 			this.chkVPK.Size = new System.Drawing.Size(77, 17);
 			this.chkVPK.TabIndex = 8;
@@ -204,7 +210,7 @@
 			this.chkUseTitleID.AutoSize = true;
 			this.chkUseTitleID.Checked = true;
 			this.chkUseTitleID.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.chkUseTitleID.Location = new System.Drawing.Point(117, 186);
+			this.chkUseTitleID.Location = new System.Drawing.Point(163, 186);
 			this.chkUseTitleID.Name = "chkUseTitleID";
 			this.chkUseTitleID.Size = new System.Drawing.Size(155, 17);
 			this.chkUseTitleID.TabIndex = 9;
@@ -214,8 +220,6 @@
 			// chkMergePatch
 			// 
 			this.chkMergePatch.AutoSize = true;
-			this.chkMergePatch.Checked = true;
-			this.chkMergePatch.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.chkMergePatch.Location = new System.Drawing.Point(163, 206);
 			this.chkMergePatch.Name = "chkMergePatch";
 			this.chkMergePatch.Size = new System.Drawing.Size(138, 17);
@@ -226,7 +230,7 @@
 			// chkAddSuffix
 			// 
 			this.chkAddSuffix.AutoSize = true;
-			this.chkAddSuffix.Location = new System.Drawing.Point(281, 186);
+			this.chkAddSuffix.Location = new System.Drawing.Point(324, 186);
 			this.chkAddSuffix.Name = "chkAddSuffix";
 			this.chkAddSuffix.Size = new System.Drawing.Size(109, 17);
 			this.chkAddSuffix.TabIndex = 7;
@@ -245,12 +249,47 @@
 			this.chkLookForAddcont.Text = "Look for patches/addcont";
 			this.chkLookForAddcont.UseVisualStyleBackColor = false;
 			// 
+			// chkUseRePatch
+			// 
+			this.chkUseRePatch.AutoSize = true;
+			this.chkUseRePatch.Location = new System.Drawing.Point(7, 229);
+			this.chkUseRePatch.Name = "chkUseRePatch";
+			this.chkUseRePatch.Size = new System.Drawing.Size(133, 17);
+			this.chkUseRePatch.TabIndex = 12;
+			this.chkUseRePatch.Text = "Use rePatch dir names";
+			this.chkUseRePatch.UseVisualStyleBackColor = false;
+			// 
+			// chkCopyHeadBin
+			// 
+			this.chkCopyHeadBin.AutoSize = true;
+			this.chkCopyHeadBin.Checked = true;
+			this.chkCopyHeadBin.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.chkCopyHeadBin.Location = new System.Drawing.Point(163, 229);
+			this.chkCopyHeadBin.Name = "chkCopyHeadBin";
+			this.chkCopyHeadBin.Size = new System.Drawing.Size(104, 17);
+			this.chkCopyHeadBin.TabIndex = 13;
+			this.chkCopyHeadBin.Text = "Copy \"head.bin\"";
+			this.chkCopyHeadBin.UseVisualStyleBackColor = false;
+			// 
+			// chkShowCMD
+			// 
+			this.chkShowCMD.AutoSize = true;
+			this.chkShowCMD.Location = new System.Drawing.Point(324, 226);
+			this.chkShowCMD.Name = "chkShowCMD";
+			this.chkShowCMD.Size = new System.Drawing.Size(80, 17);
+			this.chkShowCMD.TabIndex = 14;
+			this.chkShowCMD.Text = "Show CMD";
+			this.chkShowCMD.UseVisualStyleBackColor = false;
+			// 
 			// OptionsForm
 			// 
 			this.AcceptButton = this.btnOkay;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(451, 231);
+			this.ClientSize = new System.Drawing.Size(491, 252);
+			this.Controls.Add(this.chkShowCMD);
+			this.Controls.Add(this.chkCopyHeadBin);
+			this.Controls.Add(this.chkUseRePatch);
 			this.Controls.Add(this.chkLookForAddcont);
 			this.Controls.Add(this.chkMergePatch);
 			this.Controls.Add(this.chkUseTitleID);
@@ -266,7 +305,6 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "OptionsForm";
 			this.Text = "PSVita NPDRM Decryptor";
-			this.Load += new System.EventHandler(this.OptionsForm_Load);
 			this.flowLayoutPanel1.ResumeLayout(false);
 			this.flowLayoutPanel1.PerformLayout();
 			this.ResumeLayout(false);
@@ -286,13 +324,25 @@
 		private System.Windows.Forms.Label lblEnumerationStatus;
 		private System.Windows.Forms.CheckBox chkCompressELFs;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.ToolTip toolTipAdd;
-        private System.Windows.Forms.ToolTip toolTipRemove;
-        private System.Windows.Forms.ToolTip toolTipStart;
         private System.Windows.Forms.CheckBox chkVPK;
         private System.Windows.Forms.CheckBox chkUseTitleID;
 		private System.Windows.Forms.CheckBox chkMergePatch;
 		private System.Windows.Forms.CheckBox chkAddSuffix;
 		private System.Windows.Forms.CheckBox chkLookForAddcont;
+		private System.Windows.Forms.CheckBox chkUseRePatch;
+		private System.Windows.Forms.CheckBox chkCopyHeadBin;
+		private System.Windows.Forms.CheckBox chkShowCMD;
+		private System.Windows.Forms.ToolTip toolTipAdd;
+		private System.Windows.Forms.ToolTip toolTipRemove;
+		private System.Windows.Forms.ToolTip toolTipStart;
+		private System.Windows.Forms.ToolTip toolTipCompressELFs;
+		private System.Windows.Forms.ToolTip toolTipUseTitleID;
+		private System.Windows.Forms.ToolTip toolTipAddSuffix;
+		private System.Windows.Forms.ToolTip toolTipLookForAddcont;
+		private System.Windows.Forms.ToolTip toolTipMergePatch;
+		private System.Windows.Forms.ToolTip toolTipVPK;
+		private System.Windows.Forms.ToolTip toolTipUseRePatch;
+		private System.Windows.Forms.ToolTip toolTipCopyHeadBin;
+		private System.Windows.Forms.ToolTip toolTipShowCMD;
 	}
 }

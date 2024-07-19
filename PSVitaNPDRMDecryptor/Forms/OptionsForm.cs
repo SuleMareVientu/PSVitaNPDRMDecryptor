@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WK.Libraries.BetterFolderBrowserNS;
+using static System.Windows.Forms.AxHost;
 
 namespace PSVitaNPDRMDecryptor;
 public partial class OptionsForm : Form
@@ -35,6 +36,9 @@ public partial class OptionsForm : Form
 		Program.form.chkLookForAddcont.Enabled = state;
 		Program.form.chkUseTitleID.Enabled = state;
 		Program.form.chkAddSuffix.Enabled = state;
+		Program.form.chkUseRePatch.Enabled = state;
+		Program.form.chkCopyHeadBin.Enabled = state;
+		Program.form.chkShowCMD.Enabled = state;
 		return;
 	}
 
@@ -51,9 +55,38 @@ public partial class OptionsForm : Form
 	public OptionsForm()
 	{
 		InitializeComponent();
-		toolTipAdd.SetToolTip(this.btnAdd, "Add Folders");
-		toolTipRemove.SetToolTip(this.btnRemove, "Remove highlighted folders");
-		toolTipStart.SetToolTip(this.btnOkay, "Run");
+		toolTipAdd.SetToolTip(btnAdd, "Add Folders");
+
+		toolTipRemove.SetToolTip(btnRemove, "Remove highlighted folders");
+
+		toolTipStart.SetToolTip(btnOkay, "Run");
+
+		toolTipCompressELFs.SetToolTip(chkCompressELFs, "Compress app executables");
+
+		toolTipUseTitleID.SetToolTip(chkUseTitleID, "Use app's TitleID as output directory name");
+
+		toolTipAddSuffix.SetToolTip(chkAddSuffix, "Add \"_dec\" as output directory name" + Environment.NewLine
+			+ "(E.g. when the output dir is the same as the source dir)");
+
+		toolTipLookForAddcont.SetToolTip(chkLookForAddcont, "Look for patches and additional content as described in the readme" + Environment.NewLine
+			+ "(with \"appRoot\" being the root folder of the app folder:" + Environment.NewLine
+			+ "\"appRoot\\patch\\appTitleID\"" + Environment.NewLine
+			+ "\"appRoot\\addcont\\appTitleID\\AddcontID\")");
+
+		toolTipMergePatch.SetToolTip(chkMergePatch, "Merge app and patch" + Environment.NewLine
+			+ "(useful when not using rePatch / saving space)");
+		toolTipVPK.SetToolTip(chkVPK, "Create a VPK package installable through VitaShell");
+
+		toolTipUseRePatch.SetToolTip(chkUseRePatch, "Change output directories names to rePatch naming scheme" + Environment.NewLine
+			+ "(E.g. \"patch\" -> \"rePatch\", \"addcont\" -> \"reAddcont\")");
+
+		toolTipCopyHeadBin.SetToolTip(chkCopyHeadBin, "Copy original \"head.bin\" to output directory" + Environment.NewLine
+			+ "(needed if one wants to use the \"Refresh LiveArea\" option in VitaShell" + Environment.NewLine
+			+ "after copying decrypted content directly to \"ux0:app\" etc.," + Environment.NewLine
+			+ "instead of installing apps manually through VitaShell)");
+
+		toolTipShowCMD.SetToolTip(chkShowCMD, "Show command prompt during the decryption process");
+
 		runningTasks = new HashSet<Task>();
 	}
 
@@ -73,7 +106,10 @@ public partial class OptionsForm : Form
 			MakeVPK = chkVPK.Checked,
 			LookForAddcont = chkLookForAddcont.Checked,
 			UseTitleID = chkUseTitleID.Checked,
-			AddSuffix = chkAddSuffix.Checked
+			AddSuffix = chkAddSuffix.Checked,
+			UseRePatch = chkUseRePatch.Checked,
+			CopyHeadBin = chkCopyHeadBin.Checked,
+			ShowCMD = chkShowCMD.Checked,
 		};
 	}
 
@@ -207,20 +243,5 @@ public partial class OptionsForm : Form
 		}
 
 		return false;
-	}
-
-	private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
-	{
-
-	}
-
-	private void OptionsForm_Load(object sender, EventArgs e)
-	{
-
-	}
-
-	private void toolTip1_Popup(object sender, PopupEventArgs e)
-	{
-
 	}
 }
