@@ -1,5 +1,5 @@
 # PSVita NPDRM Decryptor
-<p align="center"> <img src="https://i.imgur.com/piWq0Dj.png"> </p>
+<p align="center"> <img src="https://i.imgur.com/uqz3MBD.png" alt="Program Screenshot" style="height: 75%; width: 75%; object-fit: contain"> </p>
 
 ## Features
 - Straightforward GUI to decrypt NPDRM protected apps/patches/addcont:
@@ -28,11 +28,14 @@ Follow the [Input Folder Search Structure](#Input-Folder-Search-Structure) secti
 Patches and additional content can still be decrypted separately.
 
 ## Installing decrypted applications
-- App
-    - Copy the VPK/folder to the PSVita (NOT inside `ux0:app`)
-    - (VPK) Open VitaShell and install the package
-    - (Folder) Open VitaShell and press △ on the app folder and choose `More -> Install folder`
+- App (**WITHOUT `head.bin`**)
+    - Copy the app's VPK/folder to the PSVita (NOT inside `ux0:app`)
+    - (**VPK**) Open VitaShell and install the package
+    - (**Folder**) Open VitaShell and press △ on the app folder and choose `More -> Install folder`
     - Accept extended permissions
+- App (**WITH `head.bin`**)
+    - Copy the app folder to `ux0:app/...` (where you would normally place NPDRM content)
+    - Return to the  home screen in VitaShell (where it shows `os0:`, `ur0:`, `ux0:` etc.), press △ and choose `Refresh LiveArea™`
 - Patch
     - Merge with main app or use rePatch
 - Additional content
@@ -57,7 +60,7 @@ For now app installation must be done through VitaShell because we need to gener
 │   └───eboot.bin
 │   └───...
 ```
-<p align="center"> <img src="https://i.imgur.com/dvYhB2o.png"> </p>
+<p align="center"> <img src="https://i.imgur.com/dvYhB2o.png" alt="Input Folder Search Structure Image" style="height: 100%; width: 100%; object-fit: contain"> </p>
 
 ## Troubleshooting
 - "My app says it's a trial"
@@ -65,7 +68,8 @@ For now app installation must be done through VitaShell because we need to gener
 - "DLCs don't work"
     - [Install the "rePatch-reLoaded" plugin.](https://github.com/SonicMastr/rePatch-reLoaded/releases/latest)
 - "I can't install the decrypted app, VitaShell throws and error"
-    - Delete the NPDRM version. If that doesn't work, manually delete the folders with the TitleID of the game in `ux0:app`, `ux0:patch`, `ux0:addcont`, `ux0:appmeta` and reboot.
+    - Delete the NPDRM version. If that doesn't work, manually delete the folders with the TitleID of the game in `ux0:app`, `ux0:patch`, `ux0:addcont`, `ux0:appmeta` and reboot.  
+    Also check if you have the `head.bin` file inside `app\sce_sys\package` and follow the [instructions decribed above](#Installing-decrypted-applications).
 - "The program doesn't recognize a patch folder"
     - If you are trying to decrypt a single patch without the main app in the structure described above, you'll need to copy the original `work.bin` of the main app (`app\sce_sys\package\work.bin`) and place it inside the patch folder: `patchTitleID\sce_sys\package\work.bin`. Additional contents have their own `work.bin`, so you don't need the original one for DLC decryption.
 - "Some apps decrypt incorrectly / don't function properly"
@@ -73,12 +77,16 @@ For now app installation must be done through VitaShell because we need to gener
 
 ## Changelog
 
+### v1.0.1
+- Improved UI
+- Added options to output rePatch folders, copy original `head.bin` to the decrypted app and show terminal during decryption.
+- Miscellaneous improvements
+
 ### v1.0
 - Initial release
 
 ## TODO
-- Add proper support for `gdc` apps (e.g. Reader™ [PCSC80012])
-- [Make VitaShell's `Refresh livearea` work on decrypted apps](https://github.com/TheOfficialFloW/VitaShell/blob/master/package_installer.c#L222)
+- ~~Add proper support for `gdc` apps (e.g. Reader™ [PCSC80012])~~ See: [GBAtemp](https://gbatemp.net/threads/e-book-reader-pcsc80012-english-translation-how-to-add-custom-books.541424/)
 
 ## Credits
 - [PSVita DevWiki - Documentation](https://www.psdevwiki.com)

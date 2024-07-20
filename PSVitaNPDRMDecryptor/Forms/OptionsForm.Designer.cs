@@ -69,7 +69,7 @@
 			this.chkCompressELFs.AutoSize = true;
 			this.chkCompressELFs.Checked = true;
 			this.chkCompressELFs.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.chkCompressELFs.Location = new System.Drawing.Point(7, 186);
+			this.chkCompressELFs.Location = new System.Drawing.Point(7, 183);
 			this.chkCompressELFs.Name = "chkCompressELFs";
 			this.chkCompressELFs.Size = new System.Drawing.Size(99, 17);
 			this.chkCompressELFs.TabIndex = 4;
@@ -204,13 +204,14 @@
 			this.chkVPK.TabIndex = 8;
 			this.chkVPK.Text = "Make VPK";
 			this.chkVPK.UseVisualStyleBackColor = false;
+			this.chkVPK.CheckedChanged += new System.EventHandler(this.chkVPK_CheckedChanged);
 			// 
 			// chkUseTitleID
 			// 
 			this.chkUseTitleID.AutoSize = true;
 			this.chkUseTitleID.Checked = true;
 			this.chkUseTitleID.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.chkUseTitleID.Location = new System.Drawing.Point(163, 186);
+			this.chkUseTitleID.Location = new System.Drawing.Point(163, 183);
 			this.chkUseTitleID.Name = "chkUseTitleID";
 			this.chkUseTitleID.Size = new System.Drawing.Size(155, 17);
 			this.chkUseTitleID.TabIndex = 9;
@@ -230,7 +231,7 @@
 			// chkAddSuffix
 			// 
 			this.chkAddSuffix.AutoSize = true;
-			this.chkAddSuffix.Location = new System.Drawing.Point(324, 186);
+			this.chkAddSuffix.Location = new System.Drawing.Point(324, 183);
 			this.chkAddSuffix.Name = "chkAddSuffix";
 			this.chkAddSuffix.Size = new System.Drawing.Size(109, 17);
 			this.chkAddSuffix.TabIndex = 7;
@@ -248,6 +249,7 @@
 			this.chkLookForAddcont.TabIndex = 11;
 			this.chkLookForAddcont.Text = "Look for patches/addcont";
 			this.chkLookForAddcont.UseVisualStyleBackColor = false;
+			this.chkLookForAddcont.CheckedChanged += new System.EventHandler(this.chkLookForAddcont_CheckedChanged);
 			// 
 			// chkUseRePatch
 			// 
@@ -268,11 +270,12 @@
 			this.chkCopyHeadBin.TabIndex = 13;
 			this.chkCopyHeadBin.Text = "Copy \"head.bin\"";
 			this.chkCopyHeadBin.UseVisualStyleBackColor = false;
+			this.chkCopyHeadBin.CheckedChanged += new System.EventHandler(this.chkCopyHeadBin_CheckedChanged);
 			// 
 			// chkShowCMD
 			// 
 			this.chkShowCMD.AutoSize = true;
-			this.chkShowCMD.Location = new System.Drawing.Point(324, 226);
+			this.chkShowCMD.Location = new System.Drawing.Point(324, 229);
 			this.chkShowCMD.Name = "chkShowCMD";
 			this.chkShowCMD.Size = new System.Drawing.Size(80, 17);
 			this.chkShowCMD.TabIndex = 14;

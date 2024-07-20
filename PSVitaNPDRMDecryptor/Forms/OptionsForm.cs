@@ -39,6 +39,12 @@ public partial class OptionsForm : Form
 		Program.form.chkUseRePatch.Enabled = state;
 		Program.form.chkCopyHeadBin.Enabled = state;
 		Program.form.chkShowCMD.Enabled = state;
+		if (state)
+		{
+			chkLookForAddcont_CheckedChanged(null, null);
+			chkVPK_CheckedChanged(null, null);
+			chkCopyHeadBin_CheckedChanged(null, null);
+		}
 		return;
 	}
 
@@ -243,5 +249,43 @@ public partial class OptionsForm : Form
 		}
 
 		return false;
+	}
+
+	private void chkCopyHeadBin_CheckedChanged(object sender, EventArgs e)
+	{
+		if (chkCopyHeadBin.Checked)
+		{
+			chkVPK.Checked = false;
+			chkVPK.Enabled = false;
+		}
+        else
+			chkVPK.Enabled = true;
+	}
+
+	private void chkVPK_CheckedChanged(object sender, EventArgs e)
+	{
+		if (chkVPK.Checked)
+		{
+			chkCopyHeadBin.Checked = false;
+			chkCopyHeadBin.Enabled = false;
+		}
+		else
+			chkCopyHeadBin.Enabled = true;
+	}
+
+	private void chkLookForAddcont_CheckedChanged(object sender, EventArgs e)
+	{
+		if (!chkLookForAddcont.Checked)
+		{
+			chkMergePatch.Checked = false;
+			chkMergePatch.Enabled = false;
+			chkUseRePatch.Checked = false;
+			chkUseRePatch.Enabled = false;
+		}
+		else
+		{
+			chkMergePatch.Enabled = true;
+			chkUseRePatch.Enabled = true;
+		}
 	}
 }

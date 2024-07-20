@@ -73,8 +73,8 @@ partial class Program
 
 				if (category == "ac")
 				{
-					string LicenseID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo").Remove(0, 20);
-					dirName = dirName + "_addcont" + "\\" + LicenseID;
+					string licenseID = GetContentID(inputDirTrimmed + "\\sce_sys\\param.sfo").Remove(0, 20);
+					dirName = dirName + "_addcont" + "\\" + licenseID;
 					isApp = false;
 				}	
 			}
