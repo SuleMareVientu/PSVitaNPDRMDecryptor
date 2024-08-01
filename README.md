@@ -1,4 +1,4 @@
-# PSVita NPDRM Decryptor
+# PSVita NPDRM Decryptor [![GitHub all releases](https://img.shields.io/github/downloads/SuleMareVientu/PSVitaNPDRMDecryptor/total?label=Total%20Downloads&logo=GitHub)](https://github.com/SuleMareVientu/PSVitaNPDRMDecryptor/releases/latest)
 <p align="center"> <img src="https://i.imgur.com/uqz3MBD.png" alt="Program Screenshot" style="height: 75%; width: 75%; object-fit: contain"> </p>
 
 ## Features
