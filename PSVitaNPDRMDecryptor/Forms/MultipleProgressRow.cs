@@ -11,27 +11,6 @@ namespace PSVitaNPDRMDecryptor;
 public partial class MultipleProgressRow : UserControl {
 	public float Ratio { get; private set; }
 
-	public string Text {
-		get {
-			if (this.InvokeRequired) {
-				return (string)this.Invoke(new Func<string>(() => {
-					return label1.Text;
-				}));
-			} else {
-				return label1.Text;
-			}
-		}
-		set {
-			if (this.InvokeRequired) {
-				this.BeginInvoke(new Action(() => {
-					label1.Text = value;
-				}));
-			} else {
-				label1.Text = value;
-			}
-		}
-	}
-
 	public MultipleProgressRow() {
 		InitializeComponent();
 	}

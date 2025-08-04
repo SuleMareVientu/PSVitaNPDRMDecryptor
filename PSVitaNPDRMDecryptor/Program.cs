@@ -110,7 +110,7 @@ partial class Program
 
 			// Check if ELFs should be compressed
 			string compressCommand = "";
-			if (o.CompressELFs) compressCommand = " --compress";
+			if (o.CompressELFs) compressCommand = "-c";
 
 			string[] files = Directory.GetFiles(outputDir, "*", SearchOption.AllDirectories);
 			foreach (string SELF in files)

@@ -10,7 +10,8 @@
 
 ## Software Requirements
 - Microsoft Windows 7 or later (x64)
-- [.NET Framework 4.8.1](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net481)
+- [.NET Framework 4.8.1 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net481)
+- [Microsoft Visual C++ Redistributable (2015, 2017, 2019, and 2022)](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 - (Optional) ["TrialPatch" user plugin to bypass game trials](https://github.com/SuleMareVientu/TrialPatch-PSV/releases/latest) (e.g. Rayman Legends, FEZ)
 - (Optional) ["rePatch-reLoaded" kernel plugin to install patches & addcont without merging](https://github.com/SonicMastr/rePatch-reLoaded/releases/latest)
 
@@ -76,6 +77,9 @@ For now app installation must be done through VitaShell because we need to gener
     - Open an issue and I'll look into it, some apps are known to cause issues.
 
 ## Changelog
+
+### v1.0.2
+- Updated external tools to be more efficient and not rely on proprietary Sony software.
 
 ### v1.0.1
 - Improved UI

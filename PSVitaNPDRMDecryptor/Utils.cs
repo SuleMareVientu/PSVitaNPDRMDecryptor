@@ -154,18 +154,18 @@ partial class Program
 			FileName = self2elf,
 			UseShellExecute = false,
 			CreateNoWindow = hideCMD,
-			Arguments = "-i \"" + SELF + "\" -o \"" + ELF + "\" -k \"" + workbin + "\""
+			Arguments = "\"" + SELF + "\" \"" + ELF + "\" \"" + workbin + "\""
 		};
 		Process p = Process.Start(psi);
 		p.WaitForExit();
 	}
 
-	public const string vdsuitepubprx = "bin\\vdsuite-pubprx.exe";
+	public const string make_fself = "bin\\vita-make-fself.exe";
 	public static void MakeFSELF(string ELF, string SELF, string commands)
 	{
-		if (!File.Exists(vdsuitepubprx))
+		if (!File.Exists(make_fself))
 		{
-			MessageBox.Show("\"vdsuite-pubprx.exe\" was not found or is inaccessible.");
+			MessageBox.Show("\"vita-make-fself.exe\" was not found or is inaccessible.");
 			Application.Exit();
 			return;
 		}
@@ -176,10 +176,10 @@ partial class Program
 		// ELF -> fSELF
 		ProcessStartInfo psi = new ProcessStartInfo
 		{
-			FileName = vdsuitepubprx,
+			FileName = make_fself,
 			UseShellExecute = false,
 			CreateNoWindow = hideCMD,
-			Arguments = "\"" + ELF + "\" \"" + SELF + "\"" + commands
+			Arguments = " " + commands + " " + "\"" + ELF + "\" \"" + SELF + "\""
 		};
 		Process p = Process.Start(psi);
 		p.WaitForExit();
