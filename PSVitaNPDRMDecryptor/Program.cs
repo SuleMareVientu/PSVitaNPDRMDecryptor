@@ -106,7 +106,8 @@ partial class Program
 			window.SetDecodingPhase("Decrypting PFS");
 			window.Update(++i / maxProgress);
 
-			DecryptPFS(inputDirTrimmed, outputDir, GetKLicensee(workbin));
+            string klic = GetKLicensee(workbin);
+            DecryptPFS(inputDirTrimmed, outputDir, klic);
 
 			// Check if ELFs should be compressed
 			string compressCommand = "";
@@ -120,7 +121,7 @@ partial class Program
 
 				window.SetDecodingPhase("Decrypting " + Path.GetFileName(SELF));
 				string tmpELF = SELF + ".elf";
-				UnSELF(SELF, tmpELF, workbin);
+				UnSELF(SELF, tmpELF, klic);
 
 				ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
 				DeleteFile(SELF);	//Delete old eboot
@@ -195,7 +196,7 @@ partial class Program
 				window.SetDecodingText(titleID + "_patch");
 				window.SetDecodingPhase("Decrypting PFS");
 
-				DecryptPFS(patchDir, outputPatchDir, GetKLicensee(workbin));
+                DecryptPFS(patchDir, outputPatchDir, klic);
 
 				files = Directory.GetFiles(outputPatchDir, "*", SearchOption.AllDirectories);
 				foreach (string SELF in files)
@@ -205,7 +206,7 @@ partial class Program
 
 					window.SetDecodingPhase("Decrypting " + Path.GetFileName(SELF));
 					string tmpELF = SELF + ".elf";
-					UnSELF(SELF, tmpELF, workbin);
+					UnSELF(SELF, tmpELF, klic);
 
 					ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
 					DeleteFile(SELF);   //Delete old eboot
@@ -293,7 +294,8 @@ partial class Program
 					window.SetDecodingText(titleID + "_addcont");
 					window.SetDecodingPhase("Decrypting PFS");
 
-					DecryptPFS(addcontDir, outputAddcontDir, GetKLicensee(addcontWorkbin));
+					string addcontKlic = GetKLicensee(addcontWorkbin);
+                    DecryptPFS(addcontDir, outputAddcontDir, addcontKlic);
 
 					files = Directory.GetFiles(outputAddcontDir, "*", SearchOption.AllDirectories);
 					foreach (string SELF in files)
@@ -303,7 +305,7 @@ partial class Program
 
 						window.SetDecodingPhase("Decrypting " + Path.GetFileName(SELF));
 						string tmpELF = SELF + ".elf";
-						UnSELF(SELF, tmpELF, addcontWorkbin);
+						UnSELF(SELF, tmpELF, addcontKlic);
 
 						ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
 						DeleteFile(SELF);   //Delete old eboot

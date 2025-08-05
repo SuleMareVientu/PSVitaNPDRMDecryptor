@@ -136,7 +136,7 @@ partial class Program
 	}
 
 	public const string self2elf = "bin\\self2elf.exe";
-	public static void UnSELF(string SELF, string ELF, string workbin)
+	public static void UnSELF(string SELF, string ELF, string klic)
 	{
 		if (!File.Exists(self2elf))
 		{
@@ -154,7 +154,7 @@ partial class Program
 			FileName = self2elf,
 			UseShellExecute = false,
 			CreateNoWindow = hideCMD,
-			Arguments = "\"" + SELF + "\" \"" + ELF + "\" \"" + workbin + "\""
+			Arguments = "\"" + SELF + "\" \"" + ELF + "\" \"" + klic + "\""
 		};
 		Process p = Process.Start(psi);
 		p.WaitForExit();
