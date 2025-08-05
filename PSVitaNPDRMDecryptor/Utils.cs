@@ -179,13 +179,37 @@ partial class Program
 			FileName = make_fself,
 			UseShellExecute = false,
 			CreateNoWindow = hideCMD,
-			Arguments = " " + commands + " " + "\"" + ELF + "\" \"" + SELF + "\""
+			Arguments = commands + " \"" + ELF + "\" \"" + SELF + "\""
 		};
 		Process p = Process.Start(psi);
 		p.WaitForExit();
 	}
 
-	public static bool IsSELF(string SELF)
+    public const string zipCLI = "bin\\7za.exe";
+    public static void MakeVPK(string folder, string output, string args = "a -tzip -mm=Deflate -mx=6 -mmt=on")
+    {
+        if (!File.Exists(zipCLI))
+        {
+            MessageBox.Show("\"7za.exe\" was not found or is inaccessible.");
+            Application.Exit();
+            return;
+        }
+
+        folder = folder.TrimEnd(Path.DirectorySeparatorChar);
+        output = output.TrimEnd(Path.DirectorySeparatorChar);
+
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            FileName = zipCLI,
+            UseShellExecute = false,
+            CreateNoWindow = hideCMD,
+            Arguments = args + " \"" + output + "\" \"" + folder + "\""
+        };
+        Process p = Process.Start(psi);
+        p.WaitForExit();
+    }
+
+    public static bool IsSELF(string SELF)
 	{
 		SELF = SELF.TrimEnd(Path.DirectorySeparatorChar);
 		if (Path.GetFileName(SELF) == "right.suprx")

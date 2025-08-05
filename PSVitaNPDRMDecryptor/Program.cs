@@ -13,7 +13,7 @@ partial class Program
 {
 	public static OptionsForm form;
 	[STAThread]
-	static void Main(string[] args)
+	static void Main()
 	{
 		Application.EnableVisualStyles();
 		Application.Run(form = new OptionsForm());
@@ -330,7 +330,7 @@ partial class Program
 			{
 				window.SetDecodingPhase("Making VPK");
 				DeleteFile(outputDir + ".vpk");
-				ZipFile.CreateFromDirectory(outputDir, outputDir + ".vpk", CompressionLevel.Optimal, false);
+                MakeVPK(outputDir, outputDir + ".vpk");
 				DeleteDirectory(outputDir, true);
 			}
 		}
