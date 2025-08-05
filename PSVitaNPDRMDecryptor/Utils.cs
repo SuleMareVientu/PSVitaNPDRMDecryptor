@@ -110,12 +110,12 @@ partial class Program
     }
     */
 
-	public const string psvpfsparser = "bin\\psvpfsparser-win64.exe";
+	public const string psvpfsparser = "bin\\psvpfsparser.exe";
 	public static void DecryptPFS(string inputDir, string outputDir, string klic)
 	{
 		if (!File.Exists(psvpfsparser))
 		{
-			MessageBox.Show("\"psvpfsparser-win64.exe\" was not found or is inaccessible.");
+			MessageBox.Show("\"psvpfsparser.exe\" was not found or is inaccessible.");
 			Application.Exit();
 			return;
 		}
