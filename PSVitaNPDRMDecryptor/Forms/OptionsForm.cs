@@ -36,7 +36,7 @@ public partial class OptionsForm : Form
 		Program.form.chkLookForAddcont.Enabled = state;
 		Program.form.chkUseTitleID.Enabled = state;
 		Program.form.chkAddSuffix.Enabled = state;
-		Program.form.chkUseRePatch.Enabled = state;
+		Program.form.chkPatchAuthID.Enabled = state;
 		Program.form.chkCopyHeadBin.Enabled = state;
 		Program.form.chkShowCMD.Enabled = state;
 		if (state)
@@ -83,8 +83,9 @@ public partial class OptionsForm : Form
 			+ "(useful when not using rePatch / saving space)");
 		toolTipVPK.SetToolTip(chkVPK, "Create a VPK package installable through VitaShell");
 
-		toolTipUseRePatch.SetToolTip(chkUseRePatch, "Change output directories names to rePatch naming scheme" + Environment.NewLine
-			+ "(E.g. \"patch\" -> \"rePatch\", \"addcont\" -> \"reAddcont\")");
+		toolTipPatchAuthID.SetToolTip(chkPatchAuthID, "Patch the \"eboot.bin\" Program Authority ID to generic fSELF (0x2F00000000000000)." + Environment.NewLine
+			+ "Useful if you experience startup crashes in decrypted games." + Environment.NewLine 
+			+ "This patch is applied automatically to Unity games.");
 
 		toolTipCopyHeadBin.SetToolTip(chkCopyHeadBin, "Copy original \"head.bin\" to output directory" + Environment.NewLine
 			+ "(needed if one wants to use the \"Refresh LiveArea\" option in VitaShell" + Environment.NewLine
@@ -113,7 +114,7 @@ public partial class OptionsForm : Form
 			LookForAddcont = chkLookForAddcont.Checked,
 			UseTitleID = chkUseTitleID.Checked,
 			AddSuffix = chkAddSuffix.Checked,
-			UseRePatch = chkUseRePatch.Checked,
+			PatchAuthID = chkPatchAuthID.Checked,
 			CopyHeadBin = chkCopyHeadBin.Checked,
 			ShowCMD = chkShowCMD.Checked,
 		};
@@ -279,13 +280,10 @@ public partial class OptionsForm : Form
 		{
 			chkMergePatch.Checked = false;
 			chkMergePatch.Enabled = false;
-			chkUseRePatch.Checked = false;
-			chkUseRePatch.Enabled = false;
 		}
 		else
 		{
 			chkMergePatch.Enabled = true;
-			chkUseRePatch.Enabled = true;
 		}
 	}
 }

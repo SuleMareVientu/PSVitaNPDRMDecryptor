@@ -49,7 +49,7 @@
 			this.chkMergePatch = new System.Windows.Forms.CheckBox();
 			this.chkAddSuffix = new System.Windows.Forms.CheckBox();
 			this.chkLookForAddcont = new System.Windows.Forms.CheckBox();
-			this.chkUseRePatch = new System.Windows.Forms.CheckBox();
+			this.chkPatchAuthID = new System.Windows.Forms.CheckBox();
 			this.chkCopyHeadBin = new System.Windows.Forms.CheckBox();
 			this.chkShowCMD = new System.Windows.Forms.CheckBox();
 			this.toolTipCompressELFs = new System.Windows.Forms.ToolTip(this.components);
@@ -58,7 +58,7 @@
 			this.toolTipLookForAddcont = new System.Windows.Forms.ToolTip(this.components);
 			this.toolTipMergePatch = new System.Windows.Forms.ToolTip(this.components);
 			this.toolTipVPK = new System.Windows.Forms.ToolTip(this.components);
-			this.toolTipUseRePatch = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTipPatchAuthID = new System.Windows.Forms.ToolTip(this.components);
 			this.toolTipCopyHeadBin = new System.Windows.Forms.ToolTip(this.components);
 			this.toolTipShowCMD = new System.Windows.Forms.ToolTip(this.components);
 			this.flowLayoutPanel1.SuspendLayout();
@@ -251,15 +251,15 @@
 			this.chkLookForAddcont.UseVisualStyleBackColor = false;
 			this.chkLookForAddcont.CheckedChanged += new System.EventHandler(this.chkLookForAddcont_CheckedChanged);
 			// 
-			// chkUseRePatch
+			// chkPatchAuthID
 			// 
-			this.chkUseRePatch.AutoSize = true;
-			this.chkUseRePatch.Location = new System.Drawing.Point(7, 229);
-			this.chkUseRePatch.Name = "chkUseRePatch";
-			this.chkUseRePatch.Size = new System.Drawing.Size(133, 17);
-			this.chkUseRePatch.TabIndex = 12;
-			this.chkUseRePatch.Text = "Use rePatch dir names";
-			this.chkUseRePatch.UseVisualStyleBackColor = false;
+			this.chkPatchAuthID.AutoSize = true;
+			this.chkPatchAuthID.Location = new System.Drawing.Point(7, 229);
+			this.chkPatchAuthID.Name = "chkPatchAuthID";
+			this.chkPatchAuthID.Size = new System.Drawing.Size(133, 17);
+			this.chkPatchAuthID.TabIndex = 12;
+			this.chkPatchAuthID.Text = "Patch SELF Auth ID";
+			this.chkPatchAuthID.UseVisualStyleBackColor = false;
 			// 
 			// chkCopyHeadBin
 			// 
@@ -290,7 +290,7 @@
 			this.ClientSize = new System.Drawing.Size(491, 252);
 			this.Controls.Add(this.chkShowCMD);
 			this.Controls.Add(this.chkCopyHeadBin);
-			this.Controls.Add(this.chkUseRePatch);
+			this.Controls.Add(this.chkPatchAuthID);
 			this.Controls.Add(this.chkLookForAddcont);
 			this.Controls.Add(this.chkMergePatch);
 			this.Controls.Add(this.chkUseTitleID);
@@ -330,7 +330,7 @@
 		private System.Windows.Forms.CheckBox chkMergePatch;
 		private System.Windows.Forms.CheckBox chkAddSuffix;
 		private System.Windows.Forms.CheckBox chkLookForAddcont;
-		private System.Windows.Forms.CheckBox chkUseRePatch;
+		private System.Windows.Forms.CheckBox chkPatchAuthID;
 		private System.Windows.Forms.CheckBox chkCopyHeadBin;
 		private System.Windows.Forms.CheckBox chkShowCMD;
 		private System.Windows.Forms.ToolTip toolTipAdd;
@@ -342,7 +342,7 @@
 		private System.Windows.Forms.ToolTip toolTipLookForAddcont;
 		private System.Windows.Forms.ToolTip toolTipMergePatch;
 		private System.Windows.Forms.ToolTip toolTipVPK;
-		private System.Windows.Forms.ToolTip toolTipUseRePatch;
+		private System.Windows.Forms.ToolTip toolTipPatchAuthID;
 		private System.Windows.Forms.ToolTip toolTipCopyHeadBin;
 		private System.Windows.Forms.ToolTip toolTipShowCMD;
 	}

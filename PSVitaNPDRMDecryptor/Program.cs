@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO.Compression;
 
 namespace PSVitaNPDRMDecryptor;
 
@@ -124,7 +123,18 @@ partial class Program
 				UnSELF(SELF, tmpELF, klic);
 
 				ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
-				DeleteFile(SELF);	//Delete old eboot
+
+				// Fix startup crashes for Unity games
+				if (Path.GetFileName(SELF).ToLower() == "eboot.bin" && PIH.Length == 0x20)
+				{
+					if (o.PatchAuthID || IsUnityPlayer(tmpELF))
+					{
+						PIH[0] = 0x00; PIH[1] = 0x00; PIH[2] = 0x00; PIH[3] = 0x00;
+						PIH[4] = 0x00; PIH[5] = 0x00; PIH[6] = 0x00; PIH[7] = 0x2F;
+					}
+				}
+
+				DeleteFile(SELF);   //Delete old eboot
 
 				MakeFSELF(tmpELF, SELF, compressCommand);
 				DeleteFile(tmpELF);
@@ -169,7 +179,6 @@ partial class Program
 			// Patch Paths
 			string patchDir = Directory.GetParent(inputDirTrimmed).ToString().TrimEnd(Path.DirectorySeparatorChar) + "\\patch\\" + titleID;
 			string outputPatchBaseDirSuffix = "\\patch";
-			if (o.UseRePatch) outputPatchBaseDirSuffix = "\\rePatch";	//Use rePatch naming scheme 
 			string outputPatchBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + outputPatchBaseDirSuffix);
 			string outputPatchDir = outputPatchBaseDir + "\\" + titleID;
 			if (o.AddSuffix) outputPatchDir += "_dec";   //Check if suffix is needed
@@ -196,7 +205,7 @@ partial class Program
 				window.SetDecodingText(titleID + "_patch");
 				window.SetDecodingPhase("Decrypting PFS");
 
-                DecryptPFS(patchDir, outputPatchDir, klic);
+				DecryptPFS(patchDir, outputPatchDir, klic);
 
 				files = Directory.GetFiles(outputPatchDir, "*", SearchOption.AllDirectories);
 				foreach (string SELF in files)
@@ -209,6 +218,17 @@ partial class Program
 					UnSELF(SELF, tmpELF, klic);
 
 					ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
+
+					// Fix startup crashes for Unity games
+					if (Path.GetFileName(SELF).ToLower() == "eboot.bin" && PIH.Length == 0x20)
+					{
+						if (o.PatchAuthID || IsUnityPlayer(tmpELF))
+						{
+							PIH[0] = 0x00; PIH[1] = 0x00; PIH[2] = 0x00; PIH[3] = 0x00;
+							PIH[4] = 0x00; PIH[5] = 0x00; PIH[6] = 0x00; PIH[7] = 0x2F;
+						}
+					}
+
 					DeleteFile(SELF);   //Delete old eboot
 
 					MakeFSELF(tmpELF, SELF, compressCommand);
@@ -259,7 +279,6 @@ partial class Program
 			// Addcont Paths
 			string addcontBaseDir = Directory.GetParent(inputDirTrimmed).ToString().TrimEnd(Path.DirectorySeparatorChar) + "\\addcont\\" + titleID;
 			string outputAddcontBaseDirSuffix = "\\addcont\\";
-			if (o.UseRePatch) outputAddcontBaseDirSuffix = "\\reAddcont\\";   //Use rePatch naming scheme 
 			string outputAddcontBaseDir = Path.GetFullPath(o.OutputDir.TrimEnd(Path.DirectorySeparatorChar) + outputAddcontBaseDirSuffix + titleID);
 			if (o.AddSuffix) outputAddcontBaseDir += "_dec";   //Check if suffix is needed
 
@@ -308,10 +327,22 @@ partial class Program
 						UnSELF(SELF, tmpELF, addcontKlic);
 
 						ReadSELFHeader(SELF, out byte[] PIH, out byte[] NPDRM, out byte[] bootParams);
+
+						// Fix startup crashes for Unity games
+						if (Path.GetFileName(SELF).ToLower() == "eboot.bin" && PIH.Length == 0x20)
+						{
+							if (o.PatchAuthID || IsUnityPlayer(tmpELF))
+							{
+								PIH[0] = 0x00; PIH[1] = 0x00; PIH[2] = 0x00; PIH[3] = 0x00;
+								PIH[4] = 0x00; PIH[5] = 0x00; PIH[6] = 0x00; PIH[7] = 0x2F;
+							}
+						}
+
 						DeleteFile(SELF);   //Delete old eboot
 
 						MakeFSELF(tmpELF, SELF, compressCommand);
 						DeleteFile(tmpELF);
+
 
 						WriteSELFHeader(SELF, PIH, NPDRM, bootParams);
 					}

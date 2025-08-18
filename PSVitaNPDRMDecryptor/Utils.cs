@@ -110,6 +110,62 @@ partial class Program
     }
     */
 
+	public static bool FileContainsString(string filePath, string searchText, Encoding encoding)
+	{
+		bool res = true;
+		if (string.IsNullOrEmpty(searchText))
+			return res;
+
+		byte[] pattern = encoding.GetBytes(searchText);
+		int patternLength = pattern.Length;
+		const int bufferSize = 4096; // Read in 4KB chunks.
+		byte[] buffer = new byte[bufferSize];
+		try
+		{
+			using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+			{
+				long streamPosition = 0;
+				int bytesRead;
+				while ((bytesRead = stream.Read(buffer, 0, bufferSize)) > 0)
+				{
+
+					for (int i = 0; i <= bytesRead - patternLength; i++)
+					{
+						if (buffer[i] == pattern[0])
+						{
+							bool isMatch = true;
+							for (int j = 1; j < patternLength; j++)
+							{
+								if (buffer[i + j] != pattern[j])
+								{
+									isMatch = false;
+									break;
+								}
+							}
+
+							if (isMatch)
+								res = true;
+						}
+					}
+
+					// Reposition the stream to handle patterns that cross buffer boundaries.
+					streamPosition = stream.Position;
+					if (stream.Position < stream.Length)
+					{
+						stream.Seek(-(patternLength - 1), SeekOrigin.Current);
+						streamPosition = stream.Position;
+					}
+				}
+			}
+		}
+		catch (IOException ex)
+		{
+			Console.WriteLine($"An error occurred: {ex.Message}");
+		}
+
+		return res;
+	}
+
 	public const string psvpfsparser = "bin\\psvpfsparser.exe";
 	public static void DecryptPFS(string inputDir, string outputDir, string klic)
 	{
@@ -230,6 +286,12 @@ partial class Program
 		catch (Exception e) { MessageBox.Show("Could not read SELF: " + e.Message); }
 
 		return false;
+	}
+
+	public static bool IsUnityPlayer(string ELF)
+	{
+		ELF = ELF.TrimEnd(Path.DirectorySeparatorChar);
+		return FileContainsString(ELF, "UnityPlayer", Encoding.ASCII);
 	}
 
 	public static string GetKLicensee(string workbin)
